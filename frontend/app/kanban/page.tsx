@@ -1,37 +1,90 @@
-import React from 'react';
+"use client";
 
-export default function KanbanDashboard() {
-  const columns = ['CRIADO', 'AGUARDANDO APROVAÇÃO', 'APROVADO', 'REJEITADO'];
-  
+import { usePendingPosts } from "../../src/adapters/post-service";
+import PinCanvas from "../../src/components/PinCanvas";
+
+export default function KanbanPage() {
+  const { data: pendingPosts, isLoading, isError } = usePendingPosts();
+
+  if (isLoading) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-gray-50">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-gray-50">
+        <p className="text-red-500">Erro ao carregar os posts pendentes.</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50 text-slate-800 p-8">
+    <div className="min-h-screen bg-gray-100 p-8">
       <header className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight text-gray-900">Elevva Kanban</h1>
-        <p className="text-gray-500">Gestão B2B: Pipeline Cloud-First UX</p>
+        <h1 className="text-3xl font-bold text-gray-800">Fluxo de Aprovação</h1>
+        <p className="text-gray-600">Analise as mídias e decida o status do post.</p>
       </header>
 
-      {/* Grid de Kanban Limpo / Quiet Luxury */}
-      <div className="flex gap-6 overflow-x-auto pb-4">
-        {columns.map(status => (
-          <div key={status} className="w-80 flex-shrink-0 flex flex-col gap-4 bg-gray-100 p-4 rounded-xl shadow-inner border border-gray-200">
-            <h2 className="text-sm font-semibold tracking-wide text-gray-500">{status}</h2>
-            
-            {/* Simulação SWR Polling Card */}
-            {status === 'AGUARDANDO APROVAÇÃO' && (
-              <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 transition-all hover:shadow-md">
-                <img src="https://via.placeholder.com/400x200" alt="Video Thumb" className="rounded mb-3 w-full object-cover h-32"/>
-                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-900 text-white mb-2 uppercase tracking-widest">
-                  Novo Review
-                </span>
-                <h3 className="text-sm font-medium mb-4 text-gray-700">Campanha Março - Outdoor B2B</h3>
-                <button className="w-full bg-slate-900 text-white rounded-md p-2 text-sm font-semibold hover:bg-slate-700 transition-colors">
-                  Aprovar / Abrir Pin (X,Y)
+      <div className="grid grid-cols-1 gap-12">
+        {pendingPosts?.map((post) => (
+          <div key={post.id} className="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col md:flex-row">
+            {/* Seção da Mídia com o Canvas Interativo */}
+            <div className="flex-1 p-6 bg-gray-50 border-r border-gray-200 flex flex-col items-center justify-center">
+              <PinCanvas 
+                postId={post.id} 
+                mediaUrl={post.media_url} 
+                existingComments={post.comments} 
+              />
+            </div>
+
+            {/* Seção de Controles e Decisão */}
+            <div className="w-full md:w-96 p-8 flex flex-col justify-between">
+              <div>
+                <div className="mb-4">
+                  <span className="inline-block px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-semibold tracking-wide">
+                    {post.status.replace("_", " ")}
+                  </span>
+                </div>
+                <h3 className="text-xl font-bold text-gray-800 mb-2">Ação Requerida</h3>
+                <p className="text-sm text-gray-600 mb-6">
+                  Revise o vídeo ao lado. Se encontrar algum problema, clique no vídeo para adicionar um pin visual.
+                </p>
+                
+                {post.comments.length > 0 && (
+                  <div className="mb-6">
+                    <h4 className="font-semibold text-gray-700 text-sm mb-2">Feedbacks Atuais ({post.comments.length})</h4>
+                    <ul className="space-y-2 max-h-40 overflow-y-auto">
+                      {post.comments.map(c => (
+                        <li key={c.id} className="text-xs bg-gray-50 p-2 rounded border border-gray-200">
+                          {c.content}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-3">
+                <button className="w-full py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold transition-colors shadow-sm">
+                  ✓ Aprovar Post
+                </button>
+                <button className="w-full py-3 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg font-semibold transition-colors shadow-sm">
+                  ✕ Rejeitar
                 </button>
               </div>
-            )}
-            
+            </div>
           </div>
         ))}
+
+        {pendingPosts?.length === 0 && (
+          <div className="text-center py-20 text-gray-500">
+            Nenhum post aguardando aprovação no momento.
+          </div>
+        )}
       </div>
     </div>
   );
