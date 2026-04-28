@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+
+<html class="light" lang="pt-br"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-bright": "#f9f9f9",
+              "primary-fixed-dim": "#474646",
+              "inverse-surface": "#2f3131",
+              "on-tertiary-fixed-variant": "#e3e2e2",
+              "on-secondary-fixed-variant": "#3b3b3b",
+              "error-container": "#ffdad6",
+              "on-tertiary-fixed": "#ffffff",
+              "on-primary-fixed-variant": "#e5e2e1",
+              "background": "#f9f9f9",
+              "error": "#ba1a1a",
+              "on-secondary": "#ffffff",
+              "on-primary-fixed": "#ffffff",
+              "on-tertiary": "#e3e2e2",
+              "tertiary-container": "#747474",
+              "secondary-fixed": "#c8c6c6",
+              "surface-variant": "#e2e2e2",
+              "surface": "#f9f9f9",
+              "on-primary": "#e5e2e1",
+              "outline": "#777777",
+              "surface-container": "#eeeeee",
+              "surface-container-high": "#e8e8e8",
+              "inverse-on-surface": "#f1f1f1",
+              "tertiary": "#3b3b3c",
+              "surface-container-highest": "#e2e2e2",
+              "secondary": "#5f5e5e",
+              "primary": "#000000",
+              "outline-variant": "#c6c6c6",
+              "on-error-container": "#410002",
+              "on-secondary-fixed": "#1b1c1c",
+              "inverse-primary": "#c8c6c5",
+              "surface-dim": "#dadada",
+              "surface-container-low": "#f3f3f3",
+              "on-tertiary-container": "#ffffff",
+              "on-secondary-container": "#1b1c1c",
+              "on-surface": "#1a1c1c",
+              "secondary-container": "#d6d4d3",
+              "tertiary-fixed": "#5e5e5e",
+              "surface-tint": "#5f5e5e",
+              "surface-container-lowest": "#ffffff",
+              "on-error": "#ffffff",
+              "tertiary-fixed-dim": "#464747",
+              "on-background": "#1a1c1c",
+              "on-surface-variant": "#474747",
+              "primary-container": "#3c3b3b",
+              "on-primary-container": "#ffffff",
+              "secondary-fixed-dim": "#acabaa",
+              "primary-fixed": "#5f5e5e"
+            },
+            fontFamily: {
+              "headline": ["Manrope"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+          },
+        },
+      }
+    </script>
+<style>
+      .material-symbols-outlined {
+        font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      }
+      body {
+        font-family: 'Inter', sans-serif;
+        background-color: #f9f9f9;
+        color: #1a1c1c;
+      }
+      .font-manrope { font-family: 'Manrope', sans-serif; }
+    </style>
+</head>
+<body class="bg-background text-on-surface">
+<!-- Sidebar Wrapper -->
+<aside class="h-screen w-64 fixed left-0 top-0 bg-[#f3f3f3] dark:bg-[#121212] flex flex-col p-6 border-r-0 z-50 hidden md:flex">
+<div class="mb-10">
+<h1 class="font-manrope text-lg font-black tracking-widest uppercase text-[#000000] dark:text-[#ffffff]">Idea Vault</h1>
+<p class="font-inter text-[11px] font-medium tracking-wide text-[#555555] dark:text-[#888888] opacity-70">The Silent Authority</p>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-3 py-2 bg-[#e2e2e2] dark:bg-[#2c2c2c] text-[#000000] dark:text-[#ffffff] rounded-md font-inter text-[13px] font-medium tracking-wide transition-transform duration-200 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="dynamic_feed">dynamic_feed</span>
+                Ideas Feed
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-[#555555] dark:text-[#888888] hover:bg-[#eeeeee] dark:hover:bg-[#1f1f1f] rounded-md font-inter text-[13px] font-medium tracking-wide transition-transform duration-200 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="all_inbox">all_inbox</span>
+                Collaborative Inbox
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-[#555555] dark:text-[#888888] hover:bg-[#eeeeee] dark:hover:bg-[#1f1f1f] rounded-md font-inter text-[13px] font-medium tracking-wide transition-transform duration-200 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="stylus_note">stylus_note</span>
+                My Submissions
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-[#555555] dark:text-[#888888] hover:bg-[#eeeeee] dark:hover:bg-[#1f1f1f] rounded-md font-inter text-[13px] font-medium tracking-wide transition-transform duration-200 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="settings">settings</span>
+                Settings
+            </a>
+</nav>
+<div class="mt-auto space-y-4">
+<button class="w-full py-2.5 bg-primary text-on-primary text-[13px] font-bold rounded-md active:scale-95 transition-all">
+                Submit Concept
+            </button>
+<a class="flex items-center gap-3 px-3 py-2 text-[#555555] dark:text-[#888888] hover:bg-[#eeeeee] dark:hover:bg-[#1f1f1f] rounded-md font-inter text-[13px] font-medium tracking-wide transition-transform duration-200 hover:translate-x-1" href="#">
+<span class="material-symbols-outlined text-[20px]" data-icon="help_outline">help_outline</span>
+                Help Center
+            </a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="md:ml-64 min-h-screen flex flex-col">
+<!-- Top Navigation -->
+<header class="bg-[#f9f9f9] dark:bg-[#1a1c1c] sticky top-0 z-40">
+<div class="flex justify-between items-center w-full px-8 py-4 max-w-[1920px] mx-auto">
+<div class="flex items-center gap-8">
+<span class="text-xl font-bold tracking-tighter text-[#1a1c1c] dark:text-[#f9f9f9] font-manrope">Cofre de Ideias</span>
+<nav class="hidden lg:flex items-center gap-6 font-inter text-sm">
+<a class="text-[#666666] dark:text-[#a1a1a1] hover:text-[#000000] dark:hover:text-[#ffffff] transition-colors" href="#">Inbox</a>
+<a class="text-[#666666] dark:text-[#a1a1a1] hover:text-[#000000] dark:hover:text-[#ffffff] transition-colors" href="#">Kanban</a>
+<a class="text-[#000000] dark:text-[#ffffff] border-b-2 border-[#000000] dark:border-[#ffffff] pb-1" href="#">Creative Review</a>
+<a class="text-[#666666] dark:text-[#a1a1a1] hover:text-[#000000] dark:hover:text-[#ffffff] transition-colors" href="#">Archive</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative hidden sm:block">
+<span class="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-outline text-lg" data-icon="search">search</span>
+<input class="bg-surface-container-low border-none rounded-full pl-10 pr-4 py-1.5 text-sm focus:ring-1 focus:ring-primary w-64" placeholder="Search ideas..." type="text"/>
+</div>
+<button class="bg-primary text-on-primary px-4 py-2 rounded-md text-sm font-bold active:scale-95 transition-all">
+                        Nova Ideia
+                    </button>
+<img alt="User Profile" class="w-8 h-8 rounded-full bg-surface-container" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAJQdtv9pAz7hnBO2c-5OM91902pFYEpSD8EuIQ437PpgneUKREcRErJYyDNcPp2YPUtcnMUkwYsl864vZRCiaB9Dh-NsqqSpUTR_hAI5h8yloLG0MQ9M4ibdRq4B8EOutJOoi-21xC5B63X7cPInO8LK30BkOROj2kxtqcDLvjUlwSu0U-PRlLquODPbcunnNgYfLra9PF_feyAGfNnwILEeVTgPjzS0ohl5lEfmkYsf6ktPFQNgBlbSz76y4QjJfi3e7m_R9I6D9e"/>
+</div>
+</div>
+<div class="bg-[#eeeeee] dark:bg-[#2c2c2c] h-[1px] w-full"></div>
+</header>
+<!-- Page Canvas -->
+<section class="p-8 max-w-7xl w-full mx-auto flex-1">
+<!-- Hero Editorial Title -->
+<div class="mb-12">
+<span class="font-inter text-[11px] font-bold tracking-widest text-secondary uppercase mb-2 block">Feed Estratégico</span>
+<h2 class="font-manrope text-5xl font-extrabold tracking-tighter text-on-surface">Curadoria de Insights</h2>
+<div class="mt-4 flex items-center gap-6 text-sm text-secondary font-medium">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-primary"></span>
+<span>24 Pendentes</span>
+</div>
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-outline-variant"></span>
+<span>142 Arquivadas</span>
+</div>
+</div>
+</div>
+<!-- Collaborative Feed Bento Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+<!-- Main Feed Column -->
+<div class="lg:col-span-8 space-y-4">
+<!-- Idea Card 1 (New/Unread) -->
+<div class="bg-surface-container-lowest p-6 flex flex-col gap-4 relative overflow-hidden group hover:bg-white transition-all duration-300">
+<div class="absolute left-0 top-0 bottom-0 w-1 bg-primary"></div>
+<div class="flex justify-between items-start">
+<div>
+<div class="flex items-center gap-2 mb-1">
+<span class="font-inter text-[10px] font-bold uppercase tracking-widest text-outline">Campanha Q4</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span class="font-inter text-[10px] text-outline">2 horas atrás</span>
+</div>
+<h3 class="font-manrope text-xl font-bold text-on-surface">Expansão de Influenciadores B2B no LinkedIn</h3>
+<p class="font-inter text-sm text-on-surface-variant leading-relaxed mt-2 max-w-2xl">
+                                    Proposta de parceria com micro-influenciadores do nicho tech para humanizar a abordagem da plataforma durante o evento anual...
+                                </p>
+</div>
+<div class="flex flex-col items-end gap-3">
+<select class="bg-surface-container border-none text-[11px] font-bold rounded-md py-1.5 pl-3 pr-8 focus:ring-0 cursor-pointer appearance-none">
+<option>Na Fila</option>
+<option>Rejeitado</option>
+<option>Em Produção</option>
+</select>
+</div>
+</div>
+<div class="flex items-center gap-4 mt-2">
+<div class="flex -space-x-2">
+<img alt="Contributor 1" class="w-6 h-6 rounded-full border-2 border-surface-container-lowest" data-alt="Small profile photo of a team member" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCFf0sY9g-OJCzxeEcvRfhnH4G8xXpCKJpWn_DeLI30ZgeP7nM7aZZJ_IHEMCgRy2sgd-wD_Td_6AGv-6qqmTAmG2I6NgQYZkYw8OGXfN9rItdna9SD3mpQ_k0A-ayDyxCj904oY6HvS6-bAaEOWQloOvVq6FmoJfN4aaEALt7PfZRWHSxMRY_yhD9ywqRLZGS_QNTd4hHsSpFHIidgj51lMVP4lbPin18xlYI8_8MGn4zJTDdaXWLpjRnWfbumPDt_AW3Yh4cZZj_e"/>
+<img alt="Contributor 2" class="w-6 h-6 rounded-full border-2 border-surface-container-lowest" data-alt="Small profile photo of a team member" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCZq1u-scwsHo_-HJ_dp-Uh7FnAWHmrSkIXMC-XZJpPK2WIRoxzx-SeabCFUkSh-GaMbO-xehbWnGXSFNTmS3gAEXNCkELTGHbkIw0jF1kNQt6iA3ck_kv9_CnnHDl1s_eXUeK8k0ROhEMFX5h8x8rAbw2EAaHde5vIbvVmAyHcobUQQQXqe7UIXVSUBthxpxn7NfZgU2UVCSxfNe0qmkGPOId3Eel3nxeqdivV_DlPORFTdbHVdm0cbrnM1SVFxRuaCQeiyLnNxIFt"/>
+</div>
+<span class="font-inter text-xs text-secondary-fixed-dim">3 comentários</span>
+<span class="ml-auto material-symbols-outlined text-outline cursor-pointer hover:text-primary transition-colors" data-icon="more_horiz">more_horiz</span>
+</div>
+</div>
+<!-- Idea Card 2 -->
+<div class="bg-surface-container-lowest p-6 flex flex-col gap-4 relative group hover:bg-white transition-all duration-300">
+<div class="flex justify-between items-start">
+<div>
+<div class="flex items-center gap-2 mb-1">
+<span class="font-inter text-[10px] font-bold uppercase tracking-widest text-outline">Performance</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span class="font-inter text-[10px] text-outline">1 dia atrás</span>
+</div>
+<h3 class="font-manrope text-xl font-bold text-on-surface">Otimização de Checkout via WhatsApp Pay</h3>
+<p class="font-inter text-sm text-on-surface-variant leading-relaxed mt-2 max-w-2xl">
+                                    Implementação de fluxo automatizado para recuperação de carrinhos abandonados utilizando a API oficial do Business...
+                                </p>
+</div>
+<div class="flex flex-col items-end gap-3">
+<select class="bg-surface-container-highest border-none text-[11px] font-bold rounded-md py-1.5 pl-3 pr-8 focus:ring-0 cursor-pointer appearance-none">
+<option selected="">Em Produção</option>
+<option>Na Fila</option>
+<option>Rejeitado</option>
+</select>
+</div>
+</div>
+<div class="flex items-center gap-4 mt-2">
+<div class="flex -space-x-2">
+<img alt="Contributor 3" class="w-6 h-6 rounded-full border-2 border-surface-container-lowest" data-alt="Small profile photo of a team member" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCaFEhs8C1oBe5uqRCm8dH1R5itha6gD4iC5Jbv0VXmkALqChZi4WfWvTZ7_bBrqjbTabhLbTTg6926oFZXzQw8aCCM2p29gXeMD90AkymSu4hCmYjaA3ruJdILx6W1N2--o9QlE0wBxW9fVHSpcwuXAPQGY6K05rX_ybV3HjHrdxdLEj-1T-tRbfdM-83Pn3bfycSBoh3FadrCWYXqUIdqzjAleO0N5zppnuCqK9rk58i0sZzoKYMBSTuCMz6gt1NbHI-kEW6Uc15Q"/>
+</div>
+<span class="font-inter text-xs text-secondary-fixed-dim">8 comentários</span>
+<span class="ml-auto material-symbols-outlined text-outline cursor-pointer hover:text-primary transition-colors" data-icon="more_horiz">more_horiz</span>
+</div>
+</div>
+<!-- Idea Card 3 (Unresponsive Indicator) -->
+<div class="bg-surface-container-lowest p-6 flex flex-col gap-4 relative group hover:bg-white transition-all duration-300">
+<div class="absolute right-6 top-6 w-2 h-2 rounded-full bg-error"></div>
+<div class="flex justify-between items-start">
+<div>
+<div class="flex items-center gap-2 mb-1">
+<span class="font-inter text-[10px] font-bold uppercase tracking-widest text-outline">Social Media</span>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<span class="font-inter text-[10px] text-outline">5 dias atrás</span>
+</div>
+<h3 class="font-manrope text-xl font-bold text-on-surface">Série de Vídeos 'Bastidores do Produto'</h3>
+<p class="font-inter text-sm text-on-surface-variant leading-relaxed mt-2 max-w-2xl">
+                                    Gravações rápidas com os desenvolvedores explicando as novas funcionalidades de forma técnica porém acessível...
+                                </p>
+</div>
+<div class="flex flex-col items-end gap-3">
+<select class="bg-surface-container border-none text-[11px] font-bold rounded-md py-1.5 pl-3 pr-8 focus:ring-0 cursor-pointer appearance-none">
+<option>Na Fila</option>
+<option>Rejeitado</option>
+<option>Em Produção</option>
+</select>
+</div>
+</div>
+<div class="flex items-center gap-4 mt-2">
+<span class="font-inter text-xs text-secondary-fixed-dim italic">Sem resposta da agência</span>
+<span class="ml-auto material-symbols-outlined text-outline cursor-pointer hover:text-primary transition-colors" data-icon="more_horiz">more_horiz</span>
+</div>
+</div>
+</div>
+<!-- Secondary Info Column -->
+<div class="lg:col-span-4 space-y-6">
+<div class="bg-surface-container-low p-8 rounded-none">
+<h4 class="font-manrope text-sm font-black tracking-widest uppercase mb-6 text-on-surface">Top Performers</h4>
+<div class="space-y-6">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 bg-primary flex items-center justify-center text-on-primary font-manrope font-bold text-xs">01</div>
+<div>
+<p class="text-xs font-bold leading-none mb-1">Fidelização Web3</p>
+<p class="text-[11px] text-outline">Sugerido por Alice M.</p>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 bg-surface-container-highest flex items-center justify-center text-on-surface font-manrope font-bold text-xs">02</div>
+<div>
+<p class="text-xs font-bold leading-none mb-1">Rebranding Visual</p>
+<p class="text-[11px] text-outline">Sugerido por Marcos V.</p>
+</div>
+</div>
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 bg-surface-container-highest flex items-center justify-center text-on-surface font-manrope font-bold text-xs">03</div>
+<div>
+<p class="text-xs font-bold leading-none mb-1">Podcast Semanal</p>
+<p class="text-[11px] text-outline">Sugerido por Clarisse J.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="p-8 border border-outline-variant border-opacity-20">
+<h4 class="font-manrope text-sm font-black tracking-widest uppercase mb-4 text-on-surface">Atalhos</h4>
+<ul class="space-y-3 font-inter text-[13px] text-secondary">
+<li class="flex items-center justify-between hover:text-primary cursor-pointer transition-colors">
+<span>Exportar Relatório Mensal</span>
+<span class="material-symbols-outlined text-sm" data-icon="download">download</span>
+</li>
+<li class="flex items-center justify-between hover:text-primary cursor-pointer transition-colors">
+<span>Ver Diretrizes de Branding</span>
+<span class="material-symbols-outlined text-sm" data-icon="open_in_new">open_in_new</span>
+</li>
+<li class="flex items-center justify-between hover:text-primary cursor-pointer transition-colors">
+<span>Configurar Notificações</span>
+<span class="material-symbols-outlined text-sm" data-icon="notifications">notifications</span>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Modal Backdrop (Hidden by default, shown for UI demonstration) -->
+<!-- To see it: remove 'hidden' class from the next div -->
+<div class="fixed inset-0 bg-primary/20 backdrop-blur-sm z-[100] flex items-center justify-center hidden">
+<div class="bg-surface-container-lowest w-full max-w-2xl mx-4 shadow-2xl relative">
+<button class="absolute right-6 top-6 text-outline hover:text-primary transition-colors">
+<span class="material-symbols-outlined" data-icon="close">close</span>
+</button>
+<div class="p-10">
+<div class="mb-8">
+<h2 class="font-manrope text-3xl font-extrabold tracking-tighter text-on-surface mb-2">Submeter Nova Sugestão</h2>
+<p class="text-on-surface-variant text-sm">Preencha os detalhes abaixo para que o time de criação possa avaliar sua ideia.</p>
+</div>
+<form class="space-y-6">
+<div class="space-y-1.5">
+<label class="font-inter text-[11px] font-bold uppercase tracking-widest text-outline">Título da Sugestão</label>
+<input class="w-full bg-surface-container-low border-none focus:ring-1 focus:ring-primary py-3 px-4 font-inter text-sm" placeholder="Ex: Campanha de Black Friday antecipada" type="text"/>
+</div>
+<div class="space-y-1.5">
+<label class="font-inter text-[11px] font-bold uppercase tracking-widest text-outline">Descrição Detalhada</label>
+<textarea class="w-full bg-surface-container-low border-none focus:ring-1 focus:ring-primary py-3 px-4 font-inter text-sm" placeholder="Explique o conceito, público-alvo e objetivos esperados..." rows="4"></textarea>
+</div>
+<div class="space-y-1.5">
+<label class="font-inter text-[11px] font-bold uppercase tracking-widest text-outline">Referência (URL externa)</label>
+<div class="flex">
+<div class="bg-surface-container px-4 flex items-center border-r border-surface-container-low">
+<span class="material-symbols-outlined text-sm" data-icon="link">link</span>
+</div>
+<input class="flex-1 bg-surface-container-low border-none focus:ring-1 focus:ring-primary py-3 px-4 font-inter text-sm" placeholder="https://exemplo.com/referencia" type="url"/>
+</div>
+</div>
+<div class="pt-4 flex justify-end gap-4">
+<button class="px-6 py-2.5 text-sm font-bold text-secondary hover:text-primary transition-colors" type="button">Cancelar</button>
+<button class="bg-primary text-on-primary px-8 py-2.5 text-sm font-bold active:scale-95 transition-all" type="submit">Enviar Conceito</button>
+</div>
+</form>
+</div>
+</div>
+</div>
+</body></html>

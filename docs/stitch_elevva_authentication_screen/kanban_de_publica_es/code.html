@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Kanban de Publicações | The Silent Authority</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&amp;family=Inter:wght@300;400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              colors: {
+                "tertiary-fixed-dim": "#464747",
+                "surface-tint": "#5f5e5e",
+                "secondary-fixed": "#c8c6c6",
+                "surface-bright": "#f9f9f9",
+                "surface-container-low": "#f3f3f3",
+                "on-secondary-fixed-variant": "#3b3b3b",
+                "surface-variant": "#e2e2e2",
+                "surface-container": "#eeeeee",
+                "tertiary-fixed": "#5e5e5e",
+                "on-error-container": "#410002",
+                "surface": "#f9f9f9",
+                "on-tertiary": "#e3e2e2",
+                "primary": "#000000",
+                "on-tertiary-fixed": "#ffffff",
+                "surface-container-high": "#e8e8e8",
+                "on-background": "#1a1c1c",
+                "surface-container-highest": "#e2e2e2",
+                "primary-fixed-dim": "#474646",
+                "on-primary-fixed": "#ffffff",
+                "surface-container-lowest": "#ffffff",
+                "on-primary-container": "#ffffff",
+                "on-secondary-container": "#1b1c1c",
+                "on-primary": "#e5e2e1",
+                "inverse-on-surface": "#f1f1f1",
+                "on-secondary-fixed": "#1b1c1c",
+                "tertiary-container": "#747474",
+                "surface-dim": "#dadada",
+                "error-container": "#ffdad6",
+                "on-error": "#ffffff",
+                "on-surface-variant": "#474747",
+                "tertiary": "#3b3b3c",
+                "background": "#f9f9f9",
+                "inverse-primary": "#c8c6c5",
+                "on-tertiary-fixed-variant": "#e3e2e2",
+                "secondary": "#5f5e5e",
+                "secondary-fixed-dim": "#acabaa",
+                "primary-container": "#3c3b3b",
+                "error": "#ba1a1a",
+                "primary-fixed": "#5f5e5e",
+                "inverse-surface": "#2f3131",
+                "secondary-container": "#d6d4d3",
+                "on-surface": "#1a1c1c",
+                "on-primary-fixed-variant": "#e5e2e1",
+                "on-secondary": "#ffffff",
+                "outline-variant": "#c6c6c6",
+                "outline": "#777777",
+                "on-tertiary-container": "#ffffff"
+              },
+              fontFamily: {
+                "headline": ["Manrope"],
+                "body": ["Inter"],
+                "label": ["Inter"]
+              },
+              borderRadius: {"DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem"},
+            },
+          },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+            font-size: 1.25rem;
+        }
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3 { font-family: 'Manrope', sans-serif; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface antialiased selection:bg-primary selection:text-on-primary">
+<!-- Top Navigation Anchor (from JSON) -->
+<nav class="fixed top-0 w-full z-50 bg-neutral-50 dark:bg-neutral-950 flex justify-between items-center w-full px-8 h-16 font-manrope text-sm tracking-tight border-b border-surface-container">
+<div class="flex items-center gap-8">
+<span class="text-xl font-bold tracking-tighter text-neutral-900 dark:text-neutral-50">The Silent Authority</span>
+<div class="hidden md:flex gap-6 items-center">
+<a class="text-neutral-900 dark:text-neutral-50 font-semibold border-b-2 border-neutral-900 dark:border-neutral-50 pb-1" href="#">Kanban</a>
+<a class="text-neutral-500 dark:text-neutral-400 font-medium hover:text-neutral-900 transition-colors" href="#">Analytics</a>
+<a class="text-neutral-500 dark:text-neutral-400 font-medium hover:text-neutral-900 transition-colors" href="#">Assets</a>
+<a class="text-neutral-500 dark:text-neutral-400 font-medium hover:text-neutral-900 transition-colors" href="#">Settings</a>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2 px-3 py-1.5 bg-surface-container rounded text-xs font-medium text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">corporate_fare</span>
+<span>Client: Alpha Group</span>
+<span class="material-symbols-outlined text-sm">expand_more</span>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">notifications</span>
+</button>
+<button class="text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">account_circle</span>
+</button>
+</div>
+</div>
+</nav>
+<!-- Side Navigation Anchor (from JSON) -->
+<aside class="h-screen w-64 fixed left-0 top-0 pt-16 bg-neutral-100 dark:bg-neutral-900 flex flex-col py-8 px-4 gap-4 hidden md:flex">
+<div class="mb-6 px-2">
+<h3 class="font-manrope text-xs uppercase tracking-widest text-on-surface-variant opacity-70">Workspaces</h3>
+<p class="text-sm font-semibold mt-1">Marketing Editorial</p>
+</div>
+<nav class="flex flex-col gap-1">
+<a class="flex items-center gap-3 px-3 py-2.5 font-manrope text-xs uppercase tracking-widest bg-neutral-200 dark:bg-neutral-800 text-neutral-900 dark:text-neutral-50 rounded-md active:scale-[0.99] transition-transform" href="#">
+<span class="material-symbols-outlined">fiber_new</span>
+<span>Novo</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 font-manrope text-xs uppercase tracking-widest text-neutral-500 dark:text-neutral-400 hover:bg-neutral-200/50 transition-colors" href="#">
+<span class="material-symbols-outlined">hourglass_empty</span>
+<span>Aguardando</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 font-manrope text-xs uppercase tracking-widest text-neutral-500 dark:text-neutral-400 hover:bg-neutral-200/50 transition-colors" href="#">
+<span class="material-symbols-outlined">check_circle</span>
+<span>Aprovado</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 font-manrope text-xs uppercase tracking-widest text-neutral-500 dark:text-neutral-400 hover:bg-neutral-200/50 transition-colors" href="#">
+<span class="material-symbols-outlined">assignment_return</span>
+<span>Retornado</span>
+</a>
+</nav>
+<div class="mt-auto border-t border-surface-container-high pt-4 flex flex-col gap-1">
+<a class="flex items-center gap-3 px-3 py-2.5 font-manrope text-xs uppercase tracking-widest text-neutral-500 dark:text-neutral-400 hover:bg-neutral-200/50 transition-colors" href="#">
+<span class="material-symbols-outlined">help</span>
+<span>Help</span>
+</a>
+<a class="flex items-center gap-3 px-3 py-2.5 font-manrope text-xs uppercase tracking-widest text-neutral-500 dark:text-neutral-400 hover:bg-neutral-200/50 transition-colors" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span>Logout</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="ml-64 pt-16 min-h-screen bg-surface">
+<div class="px-10 py-12">
+<!-- Breadcrumbs and Header -->
+<header class="mb-12">
+<nav class="flex items-center gap-2 text-label text-[0.6875rem] uppercase tracking-[0.15em] text-on-surface-variant mb-4">
+<span>Dashboard</span>
+<span class="material-symbols-outlined text-[10px]">chevron_right</span>
+<span class="text-primary font-semibold">Kanban</span>
+</nav>
+<div class="flex justify-between items-end">
+<div>
+<h1 class="text-4xl font-extrabold tracking-tight text-primary leading-tight">Kanban de Publicações</h1>
+<p class="text-on-surface-variant mt-2 max-w-xl">Gerencie o fluxo editorial e aprovações de artes para as campanhas da Alpha Group.</p>
+</div>
+<div class="flex gap-4">
+<button class="bg-primary text-on-primary px-6 py-2.5 rounded-lg font-semibold text-sm hover:opacity-90 transition-opacity flex items-center gap-2">
+<span class="material-symbols-outlined text-lg">add</span>
+                            Novo Card
+                        </button>
+</div>
+</div>
+</header>
+<!-- Kanban Board -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 items-start">
+<!-- Column: Novo -->
+<div class="flex flex-col gap-6">
+<div class="flex items-center justify-between px-2 mb-2">
+<h3 class="font-manrope text-xs uppercase tracking-widest font-bold text-on-surface flex items-center gap-2">
+                            Novo <span class="text-[10px] bg-surface-container-highest px-1.5 py-0.5 rounded-full">1</span>
+</h3>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary">more_horiz</span>
+</div>
+<!-- Card 1 -->
+<div class="bg-surface-container-lowest border-none transition-all duration-200 overflow-hidden flex flex-col group">
+<div class="relative h-44 w-full bg-surface-container overflow-hidden">
+<img class="w-full h-full object-cover grayscale opacity-80 group-hover:grayscale-0 group-hover:scale-105 transition-all duration-500" data-alt="Abstract minimalist 3D rendering in grey and black tones" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC8ISFFMKQnEUmOnQBnSNKhLX1dxWPVwXMQf_gNc0n-ec87J_K0rZhS2ty14wi6U0Rp1UKH6dmIVnIcK3jc3qKIuOhpenGOncAhQFstuq6nvIKLiygA_Y4C3bsaLO5QEd6FReJo0lD2ErP0spyRh1HLpt8tI_8DbG5P2f0qvunOzE6phJnohKaQHXbw8Th2ZyOt4D53XKVInS2W24ywEGsFE6lOtWtgnPM_ThMY-uu556hdaZcypA-JaZ7mj4Q6bszBl-9-hcth7e56"/>
+<div class="absolute top-3 left-3">
+<span class="bg-surface-container-highest/90 backdrop-blur-sm text-primary px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest rounded-full">Visual</span>
+</div>
+</div>
+<div class="p-5 flex flex-col gap-4">
+<div>
+<h4 class="font-manrope text-sm font-bold text-on-surface">Campanha Institucional - Q3</h4>
+<div class="flex items-center gap-2 mt-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">calendar_today</span>
+<span class="text-[0.6875rem] font-medium tracking-tight">Data prevista: 15 Out, 2023</span>
+</div>
+</div>
+<button class="w-full py-2.5 bg-primary text-on-primary text-[11px] font-bold uppercase tracking-widest hover:opacity-90 transition-opacity">
+                                Analisar Arte
+                            </button>
+</div>
+</div>
+</div>
+<!-- Column: Aguardando -->
+<div class="flex flex-col gap-6">
+<div class="flex items-center justify-between px-2 mb-2">
+<h3 class="font-manrope text-xs uppercase tracking-widest font-bold text-on-surface flex items-center gap-2">
+                            Aguardando Aprovação <span class="text-[10px] bg-surface-container-highest px-1.5 py-0.5 rounded-full">1</span>
+</h3>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary">more_horiz</span>
+</div>
+<!-- Card 2 -->
+<div class="bg-surface-container-lowest border-none overflow-hidden flex flex-col group">
+<div class="relative h-44 w-full bg-surface-container overflow-hidden">
+<img class="w-full h-full object-cover grayscale opacity-80 group-hover:grayscale-0 group-hover:scale-105 transition-all duration-500" data-alt="Geometric minimalist architecture with hard shadows" src="https://lh3.googleusercontent.com/aida-public/AB6AXuACQMmSeP1NN41cFaJ0IY1Xw7ky4nd2xgegoNnE0OAhrjNnhzD8pQKhllHplTmApY26AGR73sDa_zbABVuEmVINMKLIlfsgOwCTbuYZBv96aP7GcVp4ezXH2MTalDaKt6egJckqK9e0QfhA_P4HeFXg4fdak4-t-R_KMLEz3nqRe7gl8bKQPIBJgFlxbFR3MEgapvw3t1TnoEMO25U-Kv8lVilf0FR6fpPS7PzriOl4FiRrXc99Aiy7TrAdTsbh75G-wASNB7mv_Oz9"/>
+<div class="absolute top-3 left-3">
+<span class="bg-surface-container-highest/90 backdrop-blur-sm text-primary px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest rounded-full">Social Media</span>
+</div>
+</div>
+<div class="p-5 flex flex-col gap-4">
+<div>
+<h4 class="font-manrope text-sm font-bold text-on-surface">Post: Tecnologia Disruptiva</h4>
+<div class="flex items-center gap-2 mt-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-sm">calendar_today</span>
+<span class="text-[0.6875rem] font-medium tracking-tight">Data prevista: 12 Out, 2023</span>
+</div>
+</div>
+<button class="w-full py-2.5 bg-secondary-container text-on-secondary-container text-[11px] font-bold uppercase tracking-widest hover:bg-surface-container-highest transition-colors">
+                                Analisar Arte
+                            </button>
+</div>
+</div>
+</div>
+<!-- Column: Aprovado -->
+<div class="flex flex-col gap-6">
+<div class="flex items-center justify-between px-2 mb-2">
+<h3 class="font-manrope text-xs uppercase tracking-widest font-bold text-on-surface flex items-center gap-2">
+                            Aprovado <span class="text-[10px] bg-surface-container-highest px-1.5 py-0.5 rounded-full">0</span>
+</h3>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary">more_horiz</span>
+</div>
+<div class="h-44 rounded-xl border-2 border-dashed border-outline-variant flex flex-col items-center justify-center text-on-surface-variant opacity-40">
+<span class="material-symbols-outlined text-3xl mb-2">check_circle</span>
+<span class="text-[10px] uppercase tracking-widest font-bold">Sem itens</span>
+</div>
+</div>
+<!-- Column: Retornado -->
+<div class="flex flex-col gap-6">
+<div class="flex items-center justify-between px-2 mb-2">
+<h3 class="font-manrope text-xs uppercase tracking-widest font-bold text-on-surface flex items-center gap-2">
+                            Retornado <span class="text-[10px] bg-surface-container-highest px-1.5 py-0.5 rounded-full">1</span>
+</h3>
+<span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary">more_horiz</span>
+</div>
+<!-- Card 3 -->
+<div class="bg-surface-container-lowest border-none overflow-hidden flex flex-col group">
+<div class="relative h-44 w-full bg-surface-container overflow-hidden">
+<img class="w-full h-full object-cover grayscale opacity-80 group-hover:grayscale-0 group-hover:scale-105 transition-all duration-500" data-alt="Dark abstract texture with subtle light gradients" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBn-y4wfTiO7vwcVQvvHl3kOwZnfO_mNZeh5pZmJjsRQLWcQrXu14xKB26luRuswI5pcrs9ZZ7cl2ZpNlwzo-_DROQ5EttyyT6ImekNMH94ResP1bMUOiaXlW5JrbhkVx198G03elxscJlyXo1Bx2jExHz_T-_Z-1xwoa3TOQtSMWcZflebMDbHf2H6aXRpM6fIsN9pSJUqXiiBEKoTCERVMhtl0o2B9_lvWrq3EDANB_0g6YhUPfK1KkivY192behNVQIM1FyKtuJ-"/>
+<div class="absolute top-3 left-3">
+<span class="bg-error/10 text-error px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest rounded-full">Reajuste</span>
+</div>
+</div>
+<div class="p-5 flex flex-col gap-4">
+<div>
+<h4 class="font-manrope text-sm font-bold text-on-surface">E-mail Marketing: Launch Event</h4>
+<div class="flex items-center gap-2 mt-2 text-on-surface-variant">
+<span class="material-symbols-outlined text-sm text-error">warning</span>
+<span class="text-[0.6875rem] font-medium tracking-tight text-error">Data expirada: 05 Out</span>
+</div>
+</div>
+<button class="w-full py-2.5 bg-primary text-on-primary text-[11px] font-bold uppercase tracking-widest hover:opacity-90 transition-opacity">
+                                Analisar Arte
+                            </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- FAB Suppression Logic: Not rendered on Kanban View as per UX Goal of keeping focus on columns -->
+</body></html>

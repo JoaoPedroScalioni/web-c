@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+
+<html class="light" lang="pt-BR"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Silent Authority Agency - Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;700;800&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "secondary-container": "#d6d4d3",
+                        "primary": "#000000",
+                        "on-secondary-fixed-variant": "#3b3b3b",
+                        "on-error": "#ffffff",
+                        "inverse-surface": "#2f3131",
+                        "secondary-fixed": "#c8c6c6",
+                        "on-tertiary-fixed-variant": "#e3e2e2",
+                        "surface-tint": "#5f5e5e",
+                        "surface-dim": "#dadada",
+                        "on-primary-fixed": "#ffffff",
+                        "on-background": "#1a1c1c",
+                        "on-primary-fixed-variant": "#e5e2e1",
+                        "tertiary-fixed-dim": "#464747",
+                        "secondary-fixed-dim": "#acabaa",
+                        "error-container": "#ffdad6",
+                        "on-primary": "#e5e2e1",
+                        "inverse-on-surface": "#f1f1f1",
+                        "on-secondary": "#ffffff",
+                        "outline-variant": "#c6c6c6",
+                        "on-error-container": "#410002",
+                        "tertiary-fixed": "#5e5e5e",
+                        "on-secondary-container": "#1b1c1c",
+                        "error": "#ba1a1a",
+                        "surface-container": "#eeeeee",
+                        "surface-container-low": "#f3f3f3",
+                        "on-secondary-fixed": "#1b1c1c",
+                        "surface-bright": "#f9f9f9",
+                        "outline": "#777777",
+                        "on-surface-variant": "#474747",
+                        "surface": "#f9f9f9",
+                        "on-tertiary": "#e3e2e2",
+                        "primary-fixed-dim": "#474646",
+                        "surface-container-lowest": "#ffffff",
+                        "tertiary-container": "#747474",
+                        "secondary": "#5f5e5e",
+                        "on-tertiary-fixed": "#ffffff",
+                        "inverse-primary": "#c8c6c5",
+                        "surface-container-highest": "#e2e2e2",
+                        "surface-container-high": "#e8e8e8",
+                        "primary-fixed": "#5f5e5e",
+                        "surface-variant": "#e2e2e2",
+                        "background": "#f9f9f9",
+                        "tertiary": "#3b3b3c",
+                        "on-tertiary-container": "#ffffff",
+                        "on-surface": "#1a1c1c",
+                        "primary-container": "#3c3b3b",
+                        "on-primary-container": "#ffffff"
+                    },
+                    fontFamily: {
+                        "headline": ["Manrope"],
+                        "body": ["Inter"],
+                        "label": ["Inter"]
+                    },
+                    borderRadius: { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" },
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f9f9f9;
+            color: #1a1c1c;
+        }
+        .font-headline { font-family: 'Manrope', sans-serif; }
+    </style>
+</head>
+<body class="flex min-h-screen">
+<!-- SideNavBar (Authority: JSON) -->
+<aside class="fixed left-0 top-0 h-full flex flex-col py-6 px-4 border-r border-stone-200/10 dark:border-stone-800/10 bg-stone-100 dark:bg-stone-900 w-64">
+<div class="mb-12 px-2">
+<h1 class="text-xl font-black text-neutral-900 dark:text-neutral-50 tracking-tighter">Project Alpha</h1>
+<p class="text-xs text-stone-500 font-medium">Marketing Lead</p>
+</div>
+<nav class="flex-1 space-y-1">
+<!-- Active Item: Uploads (Mapping logic: Current page context is Upload Dashboard) -->
+<a class="flex items-center gap-3 bg-stone-200 dark:bg-stone-800 text-neutral-900 dark:text-neutral-50 rounded-md px-4 py-2 font-semibold transition-all scale-[0.99] duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="cloud_upload">cloud_upload</span>
+<span>Uploads</span>
+</a>
+<a class="flex items-center gap-3 text-stone-600 dark:text-stone-400 px-4 py-2 hover:bg-stone-200/50 dark:hover:bg-stone-800/50 transition-all duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="history">history</span>
+<span>History</span>
+</a>
+<a class="flex items-center gap-3 text-stone-600 dark:text-stone-400 px-4 py-2 hover:bg-stone-200/50 dark:hover:bg-stone-800/50 transition-all duration-300" href="#">
+<span class="material-symbols-outlined" data-icon="database">database</span>
+<span>Asset Management</span>
+</a>
+</nav>
+<div class="mt-auto space-y-4">
+<button class="w-full bg-primary text-on-primary py-2 px-4 rounded-lg text-sm font-medium hover:opacity-90 transition-opacity">
+                Invite Client
+            </button>
+<div class="pt-4 border-t border-stone-200/20">
+<a class="flex items-center gap-3 text-stone-600 dark:text-stone-400 px-4 py-2 text-sm hover:text-neutral-900" href="#">
+<span class="material-symbols-outlined" data-icon="help_outline">help_outline</span>
+<span>Support</span>
+</a>
+<a class="flex items-center gap-3 text-stone-600 dark:text-stone-400 px-4 py-2 text-sm hover:text-neutral-900" href="#">
+<span class="material-symbols-outlined" data-icon="logout">logout</span>
+<span>Logout</span>
+</a>
+</div>
+</div>
+</aside>
+<!-- Main Canvas -->
+<main class="flex-1 ml-64 min-h-screen bg-surface">
+<!-- TopAppBar (Authority: JSON) -->
+<header class="flex justify-between items-center w-full px-8 h-16 border-b border-stone-200/20 dark:border-stone-800/20 bg-stone-50 dark:bg-stone-950 font-manrope tracking-tight font-light">
+<div class="flex items-center gap-8">
+<span class="text-lg font-bold tracking-tighter text-neutral-900 dark:text-neutral-50">Silent Authority Agency</span>
+<nav class="hidden md:flex gap-6">
+<a class="text-neutral-950 dark:white border-b-2 border-neutral-900 dark:border-white pb-1" href="#">Projects</a>
+<a class="text-stone-500 dark:text-stone-400 font-medium hover:text-neutral-900 transition-colors duration-200" href="#">Team</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="text-stone-500 hover:text-neutral-900 transition-all">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+</button>
+<button class="bg-primary text-on-primary px-4 py-1.5 text-sm font-semibold rounded hover:opacity-80 transition-all">
+                    New Upload
+                </button>
+<div class="h-8 w-8 rounded-full bg-surface-container-highest overflow-hidden">
+<img alt="Agency Profile" class="h-full w-full object-cover" data-alt="Close up professional portrait of a marketing executive" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDl7Kw3sy0AfqKeBIHSOSptOVcDsjKN4Hvmf6SuNAa4_NkbSwbiFtueoDn4PZdiv00_snQedSvx9oIHsEhLHou57USF17mEpewF_cta_EEjzyq7Jxts9OpCyjQzFP8pQjq5EtAj-mIU8HN7CkjHjrQq4bPt-jlKNRMTZxubGZa-2eBkKpjHIc6S9Dhr6RCvv1mqn2ctdMFAJLI80Vn90WlqZCeTdwwVFT2g8-sx3ihWt4-J42o6Zm0Nn19B55dEZfwZMfoTJmaW15ux"/>
+</div>
+</div>
+</header>
+<!-- Content Area -->
+<div class="max-w-5xl mx-auto py-12 px-8">
+<header class="mb-12">
+<h2 class="text-4xl font-headline font-extrabold text-on-surface tracking-tighter mb-2">Central de Upload</h2>
+<p class="text-on-surface-variant font-body leading-relaxed max-w-xl">Gerencie seus ativos digitais com a precisão exigida pelo projeto. Segurança S3 nativa com criptografia de ponta.</p>
+</header>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
+<!-- Main Upload Area (Bento Left) -->
+<div class="lg:col-span-2 space-y-8">
+<!-- Dropzone -->
+<div class="group relative flex flex-col items-center justify-center w-full h-80 border-2 border-dashed border-outline-variant bg-surface-container-low rounded-xl transition-all hover:bg-surface-container-highest cursor-pointer">
+<div class="flex flex-col items-center justify-center pt-5 pb-6">
+<span class="material-symbols-outlined text-stone-400 text-5xl mb-4 group-hover:text-primary transition-colors" data-icon="cloud_upload">cloud_upload</span>
+<p class="mb-2 text-sm font-body text-on-surface font-semibold tracking-tight">Arraste ou selecione arquivos</p>
+<p class="text-xs text-on-surface-variant font-label">Arquivo máximo de 500MB via Cloud S3</p>
+</div>
+<input class="hidden" type="file"/>
+</div>
+<!-- Processing Phases (Shadcn-like) -->
+<div class="bg-surface-container rounded-xl p-8 space-y-6">
+<div class="flex items-center justify-between mb-2">
+<h3 class="text-sm font-semibold text-on-surface tracking-tight">Status do Processamento</h3>
+<span class="bg-surface-dim text-on-surface-variant px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest">Ativo</span>
+</div>
+<!-- Phase 1 -->
+<div class="space-y-2">
+<div class="flex justify-between text-xs font-medium text-on-surface-variant">
+<span>Checando Token</span>
+<span>100%</span>
+</div>
+<div class="h-1.5 w-full bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-primary w-full"></div>
+</div>
+</div>
+<!-- Phase 2 -->
+<div class="space-y-2">
+<div class="flex justify-between text-xs font-medium text-on-surface-variant">
+<span>Assinando Pre-Signed URL</span>
+<span>65%</span>
+</div>
+<div class="h-1.5 w-full bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-primary w-[65%]"></div>
+</div>
+</div>
+<!-- Phase 3 -->
+<div class="space-y-2">
+<div class="flex justify-between text-xs font-medium text-on-surface-variant">
+<span>Transmitindo à Nuvem</span>
+<span>Pending</span>
+</div>
+<div class="h-1.5 w-full bg-surface-container-high rounded-full overflow-hidden">
+<div class="h-full bg-outline-variant w-0"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Secondary Info (Bento Right) -->
+<div class="space-y-8">
+<!-- Metric Hero -->
+<div class="bg-surface-container-low p-6 rounded-xl flex flex-col justify-between h-32">
+<span class="text-xs font-label text-on-surface-variant uppercase tracking-widest">Espaço Utilizado</span>
+<div class="flex items-baseline gap-1">
+<span class="text-4xl font-headline font-bold text-on-surface">12.4</span>
+<span class="text-sm font-body text-on-surface-variant">GB</span>
+</div>
+</div>
+<!-- Usage Limits Card -->
+<div class="bg-surface-container-lowest p-6 rounded-xl space-y-4">
+<h4 class="text-sm font-bold text-on-surface tracking-tight">Infraestrutura</h4>
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-stone-400 mt-1" data-icon="verified_user">verified_user</span>
+<div>
+<p class="text-xs font-semibold text-on-surface">Protocolo SSL/TLS</p>
+<p class="text-[11px] text-on-surface-variant leading-relaxed">Tunelamento seguro via AWS PrivateLink para integridade de dados.</p>
+</div>
+</div>
+<div class="flex items-start gap-3">
+<span class="material-symbols-outlined text-stone-400 mt-1" data-icon="memory">memory</span>
+<div>
+<p class="text-xs font-semibold text-on-surface">Auto-Compression</p>
+<p class="text-[11px] text-on-surface-variant leading-relaxed">Ativos visuais são pré-processados para WebP em tempo real.</p>
+</div>
+</div>
+</div>
+<!-- Quick Support -->
+<div class="bg-surface-container-high p-6 rounded-xl flex flex-col items-center text-center">
+<span class="material-symbols-outlined text-primary mb-3" data-icon="contact_support">contact_support</span>
+<p class="text-xs font-semibold text-on-surface mb-1">Dúvidas Técnicas?</p>
+<p class="text-[10px] text-on-surface-variant mb-4">Acesse nossa documentação da API ou contate o suporte.</p>
+<button class="text-[10px] font-bold uppercase tracking-widest text-primary border-b border-primary hover:opacity-60 transition-opacity">Ver Docs</button>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

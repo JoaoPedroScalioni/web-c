@@ -1,0 +1,23 @@
+# Ambientes Virtuais e Caches
+venv/
+__pycache__/
+.pytest_cache/
+
+# Constelação Front-end e Node
+node_modules/
+dist/
+build/
+.next/
+
+# Chaves de Segurança e Variáveis Criptografadas (CRÍTICO)
+.env
+.env.local
+.env.development
+
+# Arquivos gerados pelo SO e IDE
+.DS_Store
+.idea/
+.vscode/
+
+# Logs de Banco de Dados ou HTTP
+*.log

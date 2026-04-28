@@ -1,0 +1,17 @@
+fastapi # O framework web moderno e rápido para construir APIs com Python.
+uvicorn # O servidor ASGI que faz a aplicação FastAPI rodar.
+sqlalchemy # O tradutor (ORM) que permite ao Python conversar com o banco de dados SQL.
+alembic # O sistema de controle de versão (migrações) para a estrutura do banco de dados.
+psycopg2-binary # Driver de conexão para o banco de dados PostgreSQL.
+asyncpg # Driver de alto desempenho para conexões assíncronas com o PostgreSQL.
+pydantic # Motor de validação de dados e tipos (o coração da segurança dos dados).
+pydantic-settings # Extensão para gerenciar configurações e variáveis de ambiente (.env).
+boto3 # SDK da Amazon para integração com serviços como o S3 (uploads de arquivos).
+passlib[bcrypt]==1.7.4 # Biblioteca para tratamento de senhas com algoritmos seguros.
+bcrypt==3.1.7 # Algoritmo de criptografia usado para "hashear" as senhas no banco.
+python-jose[cryptography] # Para geração e validação de tokens JWT (Segurança e Login).
+python-multipart # Necessário para processar uploads de arquivos e formulários.
+pytest-cov # Plugin do Pytest para gerar os relatórios de cobertura de testes (os 87%).
+httpx # Cliente HTTP assíncrono usado para fazer requisições nos testes de integração.
+pytest-asyncio # Permite que o Pytest execute testes que usam 'async' e 'await'.
+pytz # Gerenciador de fusos horários, usado para travar o sistema no horário de Brasília.
