@@ -20,15 +20,14 @@ app = FastAPI(
 
 # Defina as origens permitidas
 origins = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
+    "*",
 ]
 
 # Governança de CORS para permitir restrito acesso do Next.js
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
-    allow_credentials=True,
+    allow_credentials=False, # Importante: se usar "*", credentials deve ser False
     allow_methods=["*"],
     allow_headers=["*"],
 )
