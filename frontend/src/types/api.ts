@@ -314,6 +314,11 @@ export interface components {
              */
             content_type: string;
             /**
+             * File Size Bytes
+             * @description Tamanho do arquivo em bytes
+             */
+            file_size_bytes: number;
+            /**
              * Calendar Id
              * Format: uuid
              * @description ID do calendário para vincular o novo Post

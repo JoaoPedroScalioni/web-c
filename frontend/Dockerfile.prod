@@ -1,0 +1,51 @@
+# Stage 1: Dependências base
+FROM node:20-alpine AS base
+WORKDIR /app
+# Check https://github.com/nodejs/docker-node/tree/b4117f9333da4138b03a546ec926ef50a31506c3#nodealpine to understand why libc6-compat might be needed.
+RUN apk add --no-cache libc6-compat
+
+# Stage 2: Instalar dependências para o build
+FROM base AS deps
+WORKDIR /app
+COPY package.json package-lock.json* ./
+RUN npm ci
+
+# Stage 3: Construir a aplicação
+FROM base AS builder
+WORKDIR /app
+COPY --from=deps /app/node_modules ./node_modules
+COPY . .
+# Gera o build de produção (depende do output: 'standalone' no next.config)
+RUN npm run build
+
+# Stage 4: Imagem de Produção Final Enxuta
+FROM base AS runner
+WORKDIR /app
+
+ENV NODE_ENV production
+ENV NEXT_TELEMETRY_DISABLED 1
+
+# Cria usuário não-root por segurança
+RUN addgroup --system --gid 1001 nodejs
+RUN adduser --system --uid 1001 nextjs
+
+# Copia public folder
+COPY --from=builder /app/public ./public
+
+# Configura as permissões para o cache do Next
+RUN mkdir .next
+RUN chown nextjs:nodejs .next
+
+# Copia o build standalone gerado
+# IMPORTANTE: a pasta standalone copia automaticamente os node_modules necessários
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+
+USER nextjs
+
+EXPOSE 3000
+ENV PORT 3000
+ENV HOSTNAME "0.0.0.0"
+
+# O Next.js standalone gera um server.js na raiz do build
+CMD ["node", "server.js"]

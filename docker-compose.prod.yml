@@ -1,0 +1,77 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: elevva-db-prod
+    restart: always
+    env_file:
+      - .env.production
+    # Removemos "ports" para blindar o banco de acessos externos.
+    # Somente containers na mesma rede poderão acessá-lo.
+    volumes:
+      - elevva_postgres_data_prod:/var/lib/postgresql/data
+    networks:
+      - elevva-net-prod
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build: 
+      context: .
+      dockerfile: Dockerfile.prod
+    container_name: elevva-api-prod
+    restart: always
+    env_file:
+      - .env.production
+    environment:
+      - TZ=America/Sao_Paulo
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - elevva-net-prod
+    # Também sem "ports" exportadas, acesso restrito via Nginx
+
+  web:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+    container_name: elevva-web-prod
+    restart: always
+    env_file:
+      - .env.production
+    depends_on:
+      - api
+    networks:
+      - elevva-net-prod
+    # Sem "ports", roteado apenas pelo Nginx
+
+  nginx:
+    image: nginx:alpine
+    container_name: elevva-nginx-prod
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      # Preparação para SSL
+      # - ./certbot/conf:/etc/letsencrypt:ro
+      # - ./certbot/www:/var/www/certbot:ro
+    depends_on:
+      - api
+      - web
+    networks:
+      - elevva-net-prod
+
+networks:
+  elevva-net-prod:
+    driver: bridge
+
+volumes:
+  elevva_postgres_data_prod:
+    # Volume seguro e isolado do dev

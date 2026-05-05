@@ -1,23 +1,31 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { components } from "../types/api";
+import { fetchClient, ApiError } from "./api-client";
+import { components, paths } from "../types/api";
 
-type PostDetailResponse = components["schemas"]["PostDetailResponse"];
+// Extração cirúrgica de tipos da árvore de caminhos (O "Pulo do Gato")
+type PostDetailResponse = paths["/posts/{post_id}"]["get"]["responses"]["200"]["content"]["application/json"];
 type CommentCreateRequest = components["schemas"]["CommentCreateRequest"];
-type CommentResponse = components["schemas"]["CommentResponse"];
+type CommentResponse = paths["/posts/{post_id}/comments"]["post"]["responses"]["201"]["content"]["application/json"];
+type UploadIntentRequest = components["schemas"]["UploadIntentRequest"];
+type UploadIntentResponse = paths["/posts/upload-intent"]["post"]["responses"]["201"]["content"]["application/json"];
 
-const API_URL = "http://localhost:8000"; // Usaremos env na vida real
+// --- SERVICES (Usando o Base Client) ---
+export const createUploadIntent = async (request: UploadIntentRequest): Promise<UploadIntentResponse> => {
+  return fetchClient<UploadIntentResponse>("/posts/upload-intent", {
+    method: "POST",
+    body: JSON.stringify(request),
+  });
+};
 
-// --- SERVICES (Fetch puros) ---
 export const fetchPostDetail = async (postId: string): Promise<PostDetailResponse> => {
-  const response = await fetch(`${API_URL}/posts/${postId}`);
-  if (!response.ok) {
-    throw new Error("Erro ao buscar o post");
-  }
-  return response.json();
+  return fetchClient<PostDetailResponse>(`/posts/${postId}`);
 };
 
 export const fetchPendingPosts = async (): Promise<PostDetailResponse[]> => {
-  // TODO: Como o backend ainda não tem GET /posts, estamos mockando para a UI do Frontend ganhar vida!
+  // TODO: Quando backend tiver GET /posts real com a rota paths["/posts"]["get"]["responses"]["200"]
+  // Bastará retornar fetchClient<GetPostsResponse>("/posts?status=AGUARDANDO_APROVACAO");
+  
+  // Mock temporário compatível com a interface restrita PostDetailResponse
   return [
     {
       id: "123e4567-e89b-12d3-a456-426614174000",
@@ -45,40 +53,28 @@ export const addCommentToPost = async ({
   postId: string;
   comment: CommentCreateRequest;
 }): Promise<CommentResponse> => {
-  const response = await fetch(`${API_URL}/posts/${postId}/comments`, {
+  return fetchClient<CommentResponse>(`/posts/${postId}/comments`, {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
     body: JSON.stringify(comment),
   });
-  if (!response.ok) {
-    throw new Error("Erro ao adicionar comentário");
-  }
-  return response.json();
 };
 
 export const approvePost = async (postId: string): Promise<void> => {
-  // O endpoint de aprovar precisa existir no backend. Se não existir, 
-  // simularemos aqui com PATCH /posts/{id}/status (ou similar)
-  const response = await fetch(`${API_URL}/posts/${postId}/approve`, {
+  return fetchClient<void>(`/posts/${postId}/approve`, {
     method: "POST",
   });
-  if (!response.ok) {
-    throw new Error("Erro ao aprovar o post");
-  }
 };
 
-// --- REACT QUERY HOOKS (O que os componentes usam) ---
+// --- REACT QUERY HOOKS (Tipados com ApiError) ---
 export const usePostDetail = (postId: string) => {
-  return useQuery({
+  return useQuery<PostDetailResponse, ApiError>({
     queryKey: ["post", postId],
     queryFn: () => fetchPostDetail(postId),
   });
 };
 
 export const usePendingPosts = () => {
-  return useQuery({
+  return useQuery<PostDetailResponse[], ApiError>({
     queryKey: ["pendingPosts"],
     queryFn: () => fetchPendingPosts(),
   });
@@ -86,11 +82,59 @@ export const usePendingPosts = () => {
 
 export const useAddComment = () => {
   const queryClient = useQueryClient();
-  return useMutation({
+  return useMutation<
+    CommentResponse,
+    ApiError,
+    { postId: string; comment: CommentCreateRequest },
+    { previousPosts?: PostDetailResponse[] }
+  >({
     mutationFn: addCommentToPost,
-    onSuccess: (_, variables) => {
-      // Invalida o cache do post para buscar os novos pins na hora
-      queryClient.invalidateQueries({ queryKey: ["post", variables.postId] });
+    // UX Instantânea: Atualização Otimista
+    onMutate: async ({ postId, comment }) => {
+      await queryClient.cancelQueries({ queryKey: ["pendingPosts"] });
+
+      const previousPosts = queryClient.getQueryData<PostDetailResponse[]>(["pendingPosts"]);
+
+      if (previousPosts) {
+        queryClient.setQueryData<PostDetailResponse[]>(["pendingPosts"], (old) => {
+          if (!old) return old;
+          return old.map(post => {
+            if (post.id === postId) {
+              return {
+                ...post,
+                comments: [...post.comments, {
+                  id: `optimistic-${Date.now()}`,
+                  post_id: postId,
+                  user_id: comment.user_id,
+                  content: comment.content,
+                  coord_x: comment.coord_x,
+                  coord_y: comment.coord_y
+                } as CommentResponse]
+              };
+            }
+            return post;
+          });
+        });
+      }
+
+      return { previousPosts };
     },
+    onError: (err, variables, context) => {
+      // Rollback se o Sniper pegar (422) ou erro de rede
+      if (context?.previousPosts) {
+        queryClient.setQueryData(["pendingPosts"], context.previousPosts);
+      }
+    },
+    onSettled: (_, __, variables) => {
+      // Sincroniza sempre com o servidor no final para garantir 100% de precisão
+      queryClient.invalidateQueries({ queryKey: ["post", variables.postId] });
+      queryClient.invalidateQueries({ queryKey: ["pendingPosts"] });
+    },
+  });
+};
+
+export const useUploadIntent = () => {
+  return useMutation<UploadIntentResponse, ApiError, UploadIntentRequest>({
+    mutationFn: createUploadIntent,
   });
 };

@@ -42,7 +42,8 @@ class CommentResponse(BaseModel):
 # ===============================================
 class UploadIntentRequest(BaseModel):
     filename: str = Field(..., description="Nome original do arquivo", example="campanha_outono.mp4")
-    content_type: str = Field(..., description="MIME type do arquivo", example="video/mp4")
+    content_type: str = Field(..., description="MIME type do arquivo", example="video/mp4", pattern=r"^(video/|image/).+")
+    file_size_bytes: int = Field(..., description="Tamanho do arquivo em bytes", le=524288000)
     calendar_id: UUID = Field(..., description="ID do calendário para vincular o novo Post")
 
 class UploadIntentResponse(BaseModel):

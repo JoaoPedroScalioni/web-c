@@ -1,0 +1,41 @@
+# Stage 1: Builder
+FROM python:3.12-slim AS builder
+
+WORKDIR /app
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt .
+# Cria wheels para as dependências em vez de instalar diretamente
+RUN pip wheel --no-cache-dir --no-deps --wheel-dir /app/wheels -r requirements.txt
+
+# Stage 2: Produção Final
+FROM python:3.12-slim AS runner
+
+WORKDIR /app
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV TZ=America/Sao_Paulo
+
+# Em produção, instalamos apenas as bibliotecas de runtime necessárias (ex: libpq5)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpq5 \
+    tzdata \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copia os wheels compilados no Stage 1
+COPY --from=builder /app/wheels /wheels
+COPY --from=builder /app/requirements.txt .
+
+# Instala via wheels pre-compilados (ignora index)
+RUN pip install --no-cache /wheels/*
+
+COPY . .
+
+# Usar Gunicorn com Uvicorn workers para alta performance paralela em produção
+CMD ["gunicorn", "src.interfaces.main:app", "-w", "4", "-k", "uvicorn.workers.UvicornWorker", "-b", "0.0.0.0:8000"]

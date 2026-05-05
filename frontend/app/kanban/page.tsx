@@ -1,15 +1,18 @@
 "use client";
 
+import { useQueryClient } from "@tanstack/react-query";
 import { usePendingPosts } from "../../src/adapters/post-service";
 import PinCanvas from "../../src/components/PinCanvas";
+import UploadManager from "../../src/components/UploadManager";
 
 export default function KanbanPage() {
   const { data: pendingPosts, isLoading, isError } = usePendingPosts();
+  const queryClient = useQueryClient();
 
   if (isLoading) {
     return (
       <div className="flex h-screen items-center justify-center bg-gray-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
       </div>
     );
   }
@@ -23,10 +26,20 @@ export default function KanbanPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
-      <header className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-800">Fluxo de Aprovação</h1>
-        <p className="text-gray-600">Analise as mídias e decida o status do post.</p>
+    <div className="min-h-screen bg-gray-50 p-8">
+      <header className="mb-12 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+        <div>
+          <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Fluxo de Aprovação</h1>
+          <p className="text-gray-500 mt-1">Analise as mídias e decida o status do post.</p>
+        </div>
+        
+        {/* Upload Manager Injetado */}
+        <div className="w-full md:w-auto">
+          <UploadManager 
+            calendarId="123e4567-e89b-12d3-a456-426614174000" // Mockado para Demo
+            onUploadSuccess={() => queryClient.invalidateQueries({ queryKey: ["pendingPosts"] })}
+          />
+        </div>
       </header>
 
       <div className="grid grid-cols-1 gap-12">

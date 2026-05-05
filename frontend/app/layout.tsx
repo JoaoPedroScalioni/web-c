@@ -1,4 +1,5 @@
 import QueryProvider from "../src/providers/QueryProvider";
+import "./globals.css";
 
 export const metadata = {
   title: "Elevva Marketing",
