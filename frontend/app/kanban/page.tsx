@@ -4,37 +4,68 @@ import { useQueryClient } from "@tanstack/react-query";
 import { usePendingPosts } from "../../src/adapters/post-service";
 import PinCanvas from "../../src/components/PinCanvas";
 import UploadManager from "../../src/components/UploadManager";
+import { Check, X, MessageSquareWarning, Link as LinkIcon, CheckCircle2 } from "lucide-react";
+import { useState } from "react";
 
 export default function KanbanPage() {
   const { data: pendingPosts, isLoading, isError } = usePendingPosts();
   const queryClient = useQueryClient();
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  const copyMagicLink = (id: string) => {
+    const url = `${window.location.origin}/approve/${id}`;
+    navigator.clipboard.writeText(url);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
 
   if (isLoading) {
     return (
-      <div className="flex h-screen items-center justify-center bg-gray-50">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500"></div>
+      <div className="p-8 max-w-7xl mx-auto space-y-8">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
+          <div className="space-y-2">
+            <div className="h-8 w-64 bg-zinc-200 rounded animate-pulse"></div>
+            <div className="h-4 w-48 bg-zinc-200 rounded animate-pulse"></div>
+          </div>
+          <div className="h-64 w-full md:w-[500px] bg-zinc-200 rounded-xl animate-pulse"></div>
+        </div>
+        <div className="space-y-12">
+          {[1, 2].map((i) => (
+            <div key={i} className="bg-white rounded-xl border border-zinc-200 shadow-sm flex flex-col md:flex-row min-h-[400px]">
+              <div className="flex-1 bg-zinc-100 animate-pulse rounded-l-xl"></div>
+              <div className="w-full md:w-96 p-8 space-y-4">
+                <div className="h-6 w-24 bg-zinc-200 rounded animate-pulse"></div>
+                <div className="h-8 w-48 bg-zinc-200 rounded animate-pulse"></div>
+                <div className="h-20 w-full bg-zinc-200 rounded animate-pulse"></div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
 
   if (isError) {
     return (
-      <div className="flex h-screen items-center justify-center bg-gray-50">
-        <p className="text-red-500">Erro ao carregar os posts pendentes.</p>
+      <div className="flex h-full items-center justify-center p-8">
+        <div className="bg-red-50 text-red-600 p-6 rounded-xl border border-red-100 text-center max-w-md">
+          <MessageSquareWarning size={48} className="mx-auto mb-4 opacity-50" />
+          <h2 className="text-lg font-bold mb-2">Erro de Conexão</h2>
+          <p className="text-sm">Não foi possível carregar o fluxo de aprovação. Verifique se a API está online.</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <header className="mb-12 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+    <div className="p-8 max-w-7xl mx-auto">
+      <header className="mb-12 flex flex-col xl:flex-row justify-between items-start xl:items-center gap-8 border-b border-zinc-200 pb-8">
         <div>
-          <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Fluxo de Aprovação</h1>
-          <p className="text-gray-500 mt-1">Analise as mídias e decida o status do post.</p>
+          <h1 className="text-3xl font-extrabold text-zinc-900 tracking-tight">Fluxo de Aprovação</h1>
+          <p className="text-zinc-500 mt-2">Analise as mídias, adicione pins de correção e decida o status da campanha.</p>
         </div>
         
-        {/* Upload Manager Injetado */}
-        <div className="w-full md:w-auto">
+        <div className="w-full xl:w-auto">
           <UploadManager 
             calendarId="123e4567-e89b-12d3-a456-426614174000" // Mockado para Demo
             onUploadSuccess={() => queryClient.invalidateQueries({ queryKey: ["pendingPosts"] })}
@@ -44,9 +75,10 @@ export default function KanbanPage() {
 
       <div className="grid grid-cols-1 gap-12">
         {pendingPosts?.map((post) => (
-          <div key={post.id} className="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col md:flex-row">
+          <div key={post.id} className="bg-white rounded-xl border border-zinc-200 shadow-sm overflow-hidden flex flex-col lg:flex-row transition-all hover:shadow-md">
+            
             {/* Seção da Mídia com o Canvas Interativo */}
-            <div className="flex-1 p-6 bg-gray-50 border-r border-gray-200 flex flex-col items-center justify-center">
+            <div className="flex-1 p-6 bg-zinc-100/50 border-b lg:border-b-0 lg:border-r border-zinc-200 flex flex-col items-center justify-center relative min-h-[400px]">
               <PinCanvas 
                 postId={post.id} 
                 mediaUrl={post.media_url} 
@@ -55,47 +87,82 @@ export default function KanbanPage() {
             </div>
 
             {/* Seção de Controles e Decisão */}
-            <div className="w-full md:w-96 p-8 flex flex-col justify-between">
-              <div>
-                <div className="mb-4">
-                  <span className="inline-block px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-semibold tracking-wide">
-                    {post.status.replace("_", " ")}
+            <div className="w-full lg:w-[400px] p-8 flex flex-col">
+              <div className="flex-1">
+                <div className="mb-6 flex items-center justify-between">
+                  <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-amber-100 text-amber-800 border border-amber-200">
+                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500 mr-1.5"></span>
+                    {post.status.replace("_", " ").toUpperCase()}
                   </span>
+                  <span className="text-xs text-zinc-400 font-medium">ID: {post.id.split('-')[0]}</span>
                 </div>
-                <h3 className="text-xl font-bold text-gray-800 mb-2">Ação Requerida</h3>
-                <p className="text-sm text-gray-600 mb-6">
-                  Revise o vídeo ao lado. Se encontrar algum problema, clique no vídeo para adicionar um pin visual.
+                
+                <h3 className="text-xl font-bold text-zinc-900 mb-2">Revisão Criativa</h3>
+                <p className="text-sm text-zinc-500 mb-8 leading-relaxed">
+                  Clique diretamente sobre o vídeo para adicionar um pin visual. Descreva com precisão o ajuste necessário para a equipe de edição.
                 </p>
                 
-                {post.comments.length > 0 && (
-                  <div className="mb-6">
-                    <h4 className="font-semibold text-gray-700 text-sm mb-2">Feedbacks Atuais ({post.comments.length})</h4>
-                    <ul className="space-y-2 max-h-40 overflow-y-auto">
+                {post.comments.length > 0 ? (
+                  <div className="mb-8">
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="font-semibold text-zinc-900 text-sm">Feedbacks Atuais</h4>
+                      <span className="bg-zinc-100 text-zinc-600 text-xs py-0.5 px-2 rounded-full font-medium">
+                        {post.comments.length}
+                      </span>
+                    </div>
+                    <ul className="space-y-2 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
                       {post.comments.map(c => (
-                        <li key={c.id} className="text-xs bg-gray-50 p-2 rounded border border-gray-200">
+                        <li key={c.id} className="text-xs bg-zinc-50 p-3 rounded-lg border border-zinc-200 text-zinc-700 shadow-sm">
+                          <span className="font-semibold text-indigo-600 mr-2">#{c.id.split('-')[0]}</span>
                           {c.content}
                         </li>
                       ))}
                     </ul>
                   </div>
+                ) : (
+                  <div className="mb-8 p-4 bg-zinc-50 border border-zinc-100 rounded-lg text-center">
+                    <p className="text-sm text-zinc-400">Nenhum feedback apontado ainda.</p>
+                  </div>
                 )}
               </div>
 
-              <div className="space-y-3">
-                <button className="w-full py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-semibold transition-colors shadow-sm">
-                  ✓ Aprovar Post
+              <div className="space-y-3 pt-6 border-t border-zinc-100 mt-auto">
+                <button 
+                  onClick={() => copyMagicLink(post.id)}
+                  className="w-full flex items-center justify-center gap-2 py-3 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-lg font-semibold transition-all border border-indigo-200"
+                >
+                  {copiedId === post.id ? (
+                    <>
+                      <CheckCircle2 size={18} />
+                      Link Copiado!
+                    </>
+                  ) : (
+                    <>
+                      <LinkIcon size={18} />
+                      Copiar Magic Link
+                    </>
+                  )}
                 </button>
-                <button className="w-full py-3 bg-red-100 hover:bg-red-200 text-red-700 rounded-lg font-semibold transition-colors shadow-sm">
-                  ✕ Rejeitar
-                </button>
+                <div className="flex gap-2">
+                  <button className="flex-1 flex items-center justify-center gap-2 py-3 bg-zinc-900 hover:bg-zinc-800 text-white rounded-lg font-medium transition-all shadow-sm">
+                    <Check size={18} />
+                    Aprovar Internamente
+                  </button>
+                  <button className="flex-1 flex items-center justify-center gap-2 py-3 bg-white hover:bg-red-50 text-red-600 border border-red-200 hover:border-red-300 rounded-lg font-medium transition-all shadow-sm">
+                    <X size={18} />
+                    Rejeitar
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         ))}
 
         {pendingPosts?.length === 0 && (
-          <div className="text-center py-20 text-gray-500">
-            Nenhum post aguardando aprovação no momento.
+          <div className="text-center py-32 bg-white rounded-xl border border-dashed border-zinc-300">
+            <Check className="mx-auto h-12 w-12 text-zinc-300 mb-4" />
+            <h3 className="text-lg font-medium text-zinc-900">Tudo limpo por aqui</h3>
+            <p className="mt-1 text-sm text-zinc-500">Nenhum post aguardando aprovação no momento.</p>
           </div>
         )}
       </div>

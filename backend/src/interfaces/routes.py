@@ -1,9 +1,10 @@
-from fastapi import APIRouter, HTTPException, Depends 
+from fastapi import APIRouter, HTTPException, Depends, UploadFile, File, Form
 from sqlalchemy.ext.asyncio import AsyncSession 
 from sqlalchemy.future import select 
 from sqlalchemy.orm import selectinload 
-from uuid import UUID 
-
+from uuid import UUID, uuid4
+import shutil
+import os
 from src.interfaces.schemas import (
     PostCreateRequest, 
     PostResponse, 
@@ -18,41 +19,45 @@ from src.infrastructure.models import PostModel, CommentModel, UserModel
 from src.domain.repositories import StorageRepository
 from src.domain.entities import PostStatus
 from src.interfaces.auth import get_current_user
-from src.application.use_cases import GetPostDetailUseCase, AddCommentUseCase
+from src.application.use_cases import GetPostDetailUseCase, AddCommentUseCase, UpdatePostStatusUseCase
 from src.infrastructure.repositories_impl import SQLAlchemyPostRepository
 from src.infrastructure.utils.time_service import TimeService
 
 router = APIRouter(prefix="/posts", tags=["Kanban Posts B2B"])
 
 # --- WORKFLOW E PERFORMANCE ---
-@router.post("/upload-intent", response_model=UploadIntentResponse, status_code=201)
-async def create_upload_intent(
-    request: UploadIntentRequest, 
-    db: AsyncSession = Depends(get_db),
-    storage: StorageRepository = Depends(get_storage)
+@router.post("/upload", response_model=PostResponse, status_code=201)
+async def upload_media_local(
+    calendar_id: str = Form(...),
+    file: UploadFile = File(...),
+    db: AsyncSession = Depends(get_db)
 ):
     """
-    Início do ciclo: status PENDING_UPLOAD. O upload é direto pro S3 (Bypass), 
-    mantendo o servidor leve e performático.
+    Substituição do S3: Armazena o vídeo localmente (custo zero) no volume /uploads.
     """
-    presigned = storage.generate_upload_url(
-        file_name=request.filename, 
-        file_type=request.content_type
-    )
+    os.makedirs("uploads", exist_ok=True)
     
+    # Gerar nome seguro
+    ext = os.path.splitext(file.filename)[1]
+    safe_filename = f"{uuid4().hex}{ext}"
+    file_path = os.path.join("uploads", safe_filename)
+    
+    # Salvar no disco local
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+        
+    # Salvar no Banco
     new_post = PostModel(
-        calendar_id=request.calendar_id,
-        media_url=presigned["file_key"],
-        status=PostStatus.PENDING_UPLOAD, # <--- CONTROLE DE ESTADO
-        created_at=TimeService.get_now()  # <--- PADRONIZAÇÃO GMT-3
+        calendar_id=calendar_id,
+        media_url=f"http://localhost:8000/media/{safe_filename}",
+        status=PostStatus.AGUARDANDO_APROVACAO,
+        created_at=TimeService.get_now()
     )
     db.add(new_post)
-    await db.commit() # <--- ASYNC: SEM BLOQUEIO DE THREADS
+    await db.commit()
+    await db.refresh(new_post)
     
-    return UploadIntentResponse(
-        upload_url=presigned["upload_url"],
-        file_key=presigned["file_key"]
-    )
+    return new_post
 
 @router.post("", response_model=PostResponse, status_code=201)
 async def create_post(
@@ -88,8 +93,7 @@ async def get_post(post_id: UUID, db: AsyncSession = Depends(get_db)):
 async def add_visual_pin_comment(
     post_id: UUID, 
     request: CommentCreateRequest, 
-    db: AsyncSession = Depends(get_db),
-    current_user: UserModel = Depends(get_current_user)
+    db: AsyncSession = Depends(get_db)
 ):
     """
     Validação Sniper: o Pydantic garante x/y entre 0 e 100. 
@@ -107,3 +111,21 @@ async def add_visual_pin_comment(
         coord_x=request.coord_x, # <--- REGRA DE NEGÓCIO PROTEGIDA
         coord_y=request.coord_y
     )
+
+@router.patch("/{post_id}/status", response_model=PostResponse, status_code=200)
+async def update_post_status(
+    post_id: UUID,
+    request: __import__('src.interfaces.schemas', fromlist=['PostStatusUpdateRequest']).PostStatusUpdateRequest,
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Magic Link Approval: Atualiza o status do Post (ex: APROVADO, REJEITADO) de forma pública/anônima.
+    """
+    repo = SQLAlchemyPostRepository(db)
+    use_case = UpdatePostStatusUseCase(repo)
+    
+    await use_case.execute(post_id, request.status)
+    
+    # Busca atualizado para retornar
+    updated_post = await repo.get_by_id(post_id)
+    return updated_post

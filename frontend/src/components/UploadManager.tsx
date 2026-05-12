@@ -1,15 +1,14 @@
 "use client";
 
 import React, { useState, useRef } from "react";
-import { useUploadIntent } from "../adapters/post-service";
-import { ApiError } from "../adapters/api-client";
+import { UploadCloud, FileVideo, AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
 
 interface UploadManagerProps {
-  calendarId: string; // O ID do calendário/cliente atual
+  calendarId: string;
   onUploadSuccess?: () => void;
 }
 
-const MAX_FILE_SIZE = 500 * 1024 * 1024; // 500MB
+const MAX_FILE_SIZE = 500 * 1024 * 1024;
 const ALLOWED_TYPES = ["video/mp4", "video/webm", "image/jpeg", "image/png"];
 
 export default function UploadManager({ calendarId, onUploadSuccess }: UploadManagerProps) {
@@ -17,145 +16,179 @@ export default function UploadManager({ calendarId, onUploadSuccess }: UploadMan
   const [error, setError] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [progress, setProgress] = useState<number>(0);
+  const [isDragOver, setIsDragOver] = useState(false);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const uploadIntentMutation = useUploadIntent();
+
+  const validateAndSetFile = (selectedFile: File) => {
+    setError(null);
+    if (selectedFile.size > MAX_FILE_SIZE) {
+      setError(`Arquivo muito grande: ${(selectedFile.size / 1024 / 1024).toFixed(2)}MB. O limite é 500MB.`);
+      return;
+    }
+    if (!ALLOWED_TYPES.includes(selectedFile.type)) {
+      setError("Formato inválido. Use MP4, WebM, JPEG ou PNG.");
+      return;
+    }
+    setFile(selectedFile);
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setError(null);
     if (e.target.files && e.target.files.length > 0) {
-      const selectedFile = e.target.files[0];
-      
-      // Validação Client-Side Espelho (Sniper Secundário)
-      if (selectedFile.size > MAX_FILE_SIZE) {
-        setError(`O arquivo excede o limite de 500MB (Tamanho atual: ${(selectedFile.size / 1024 / 1024).toFixed(2)}MB).`);
-        return;
-      }
-      
-      if (!ALLOWED_TYPES.includes(selectedFile.type)) {
-        setError("Formato não suportado. Use MP4, WebM, JPEG ou PNG.");
-        return;
-      }
-
-      setFile(selectedFile);
+      validateAndSetFile(e.target.files[0]);
     }
   };
 
-  const handleUpload = async () => {
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      validateAndSetFile(e.dataTransfer.files[0]);
+    }
+  };
+
+  const handleUpload = () => {
     if (!file) return;
 
     setIsUploading(true);
     setError(null);
-    setProgress(10); // Feedback inicial
+    setProgress(0);
 
-    try {
-      // 1. Solicita a Intenção de Upload ao Backend (Gerando a URL S3 via boto3)
-      const intentResponse = await uploadIntentMutation.mutateAsync({
-        calendar_id: calendarId,
-        filename: file.name,
-        content_type: file.type,
-        file_size_bytes: file.size,
-      });
+    const formData = new FormData();
+    formData.append("calendar_id", calendarId);
+    formData.append("file", file);
 
-      setProgress(40);
+    const xhr = new XMLHttpRequest();
+    xhr.open("POST", "http://localhost:8000/posts/upload", true);
 
-      // 2. Upload Bypass Direto para o AWS S3
-      // A requisição usa PUT pois o generate_presigned_url('put_object') espera este método.
-      const s3Response = await fetch(intentResponse.upload_url, {
-        method: "PUT",
-        headers: {
-          "Content-Type": file.type,
-        },
-        body: file,
-      });
-
-      if (!s3Response.ok) {
-        throw new Error(`Falha no S3 Bypass: ${s3Response.statusText}`);
+    xhr.upload.onprogress = (event) => {
+      if (event.lengthComputable) {
+        const percentCompleted = Math.round((event.loaded * 100) / event.total);
+        setProgress(percentCompleted);
       }
+    };
 
-      setProgress(100);
-      
-      // Notifica o componente pai (ex: Recarregar Kanban)
-      if (onUploadSuccess) {
-        onUploadSuccess();
-      }
-
-      // Limpar o form
-      setFile(null);
-      if (fileInputRef.current) fileInputRef.current.value = "";
-      
-    } catch (err: any) {
-      if (err instanceof ApiError) {
-        // Erro 422 capturado do Pydantic no Backend
-        setError(`Erro de Validação Backend: ${JSON.stringify(err.details || err.message)}`);
-      } else {
-        setError(`Falha crítica no upload: ${err.message}`);
-      }
-    } finally {
+    xhr.onload = () => {
       setIsUploading(false);
-      setTimeout(() => setProgress(0), 2000);
-    }
+      if (xhr.status >= 200 && xhr.status < 300) {
+        setProgress(100);
+        if (onUploadSuccess) onUploadSuccess();
+        
+        setTimeout(() => {
+          setFile(null);
+          if (fileInputRef.current) fileInputRef.current.value = "";
+          setProgress(0);
+        }, 2000);
+      } else {
+        try {
+          const response = JSON.parse(xhr.responseText);
+          setError(`Erro no Upload: ${response.detail || xhr.statusText}`);
+        } catch {
+          setError(`Falha ao conectar no servidor (CORS ou Off-line)`);
+        }
+        setProgress(0);
+      }
+    };
+
+    xhr.onerror = () => {
+      setIsUploading(false);
+      setError("Falha de rede ou CORS ao tentar o upload local.");
+      setProgress(0);
+    };
+
+    xhr.send(formData);
   };
 
   return (
-    <div className="p-6 border border-gray-200 rounded-xl bg-white shadow-sm max-w-md">
-      <h3 className="text-lg font-bold mb-4 text-gray-800">Nova Mídia (Bypass S3)</h3>
+    <div className="w-full max-w-lg bg-white rounded-xl border border-zinc-200 shadow-sm overflow-hidden">
+      <div className="p-5 border-b border-zinc-100 bg-zinc-50/50">
+        <h3 className="text-base font-semibold text-zinc-900 flex items-center gap-2">
+          <UploadCloud className="text-zinc-500" size={18} />
+          Ingestão de Mídia B2B
+        </h3>
+        <p className="text-xs text-zinc-500 mt-1">Upload Local de Alta Velocidade (Máx 500MB)</p>
+      </div>
       
-      <div className="space-y-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Selecione o Vídeo ou Imagem (Máx 500MB)
-          </label>
-          <input 
-            ref={fileInputRef}
-            type="file" 
-            accept="video/mp4,video/webm,image/jpeg,image/png"
-            onChange={handleFileChange}
-            disabled={isUploading}
-            className="block w-full text-sm text-gray-500
-              file:mr-4 file:py-2 file:px-4
-              file:rounded-md file:border-0
-              file:text-sm file:font-semibold
-              file:bg-indigo-50 file:text-indigo-700
-              hover:file:bg-indigo-100
-              disabled:opacity-50"
-          />
-        </div>
+      <div className="p-6">
+        {!file ? (
+          <div 
+            onClick={() => fileInputRef.current?.click()}
+            onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
+            onDragLeave={() => setIsDragOver(false)}
+            onDrop={handleDrop}
+            className={`
+              relative flex flex-col items-center justify-center p-8 border-2 border-dashed rounded-lg cursor-pointer transition-colors
+              ${isDragOver ? 'border-indigo-500 bg-indigo-50/50' : 'border-zinc-300 hover:border-zinc-400 bg-zinc-50 hover:bg-zinc-100/50'}
+            `}
+          >
+            <input 
+              ref={fileInputRef} type="file" className="hidden" 
+              accept="video/mp4,video/webm,image/jpeg,image/png"
+              onChange={handleFileChange}
+            />
+            <div className="bg-white p-3 rounded-full shadow-sm mb-3 border border-zinc-100">
+              <UploadCloud className="text-zinc-400" size={24} />
+            </div>
+            <p className="text-sm font-medium text-zinc-700">Clique ou arraste a mídia aqui</p>
+            <p className="text-xs text-zinc-400 mt-1">MP4, WebM, PNG, JPG</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <div className="flex items-center gap-4 p-3 border border-zinc-200 rounded-lg bg-zinc-50">
+              <div className="bg-indigo-100 text-indigo-600 p-2 rounded-md">
+                <FileVideo size={20} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-zinc-900 truncate">{file.name}</p>
+                <p className="text-xs text-zinc-500">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
+              </div>
+              {!isUploading && progress !== 100 && (
+                <button onClick={() => setFile(null)} className="text-zinc-400 hover:text-red-500 text-xs font-medium px-2 py-1">
+                  Remover
+                </button>
+              )}
+            </div>
 
-        {file && (
-          <div className="text-sm text-gray-600">
-            <strong>Arquivo:</strong> {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
+            {progress > 0 && (
+              <div className="space-y-1.5">
+                <div className="flex justify-between text-xs font-medium text-zinc-600">
+                  <span>Enviando para a nuvem...</span>
+                  <span>{progress}%</span>
+                </div>
+                <div className="w-full bg-zinc-100 rounded-full h-2 overflow-hidden">
+                  <div className="bg-indigo-600 h-full transition-all duration-300 ease-out" style={{ width: `${progress}%` }} />
+                </div>
+              </div>
+            )}
+
+            <button
+              onClick={handleUpload}
+              disabled={isUploading || progress === 100}
+              className={`
+                w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-md font-medium text-sm transition-all
+                ${progress === 100 
+                  ? 'bg-emerald-500 text-white cursor-default' 
+                  : 'bg-zinc-900 hover:bg-zinc-800 text-white disabled:opacity-50 disabled:cursor-not-allowed shadow-sm'
+                }
+              `}
+            >
+              {isUploading ? (
+                <><Loader2 size={16} className="animate-spin" /> Processando Bypass...</>
+              ) : progress === 100 ? (
+                <><CheckCircle2 size={16} /> Upload Concluído</>
+              ) : (
+                'Iniciar Upload'
+              )}
+            </button>
           </div>
         )}
 
         {error && (
-          <div className="text-sm text-red-600 bg-red-50 p-3 rounded-md border border-red-200">
-            {error}
+          <div className="mt-4 flex items-start gap-2 p-3 rounded-md bg-red-50 text-red-600 border border-red-100 text-sm">
+            <AlertCircle size={16} className="mt-0.5 shrink-0" />
+            <span>{error}</span>
           </div>
         )}
-
-        {progress > 0 && progress < 100 && (
-          <div className="w-full bg-gray-200 rounded-full h-2.5">
-            <div 
-              className="bg-indigo-600 h-2.5 rounded-full transition-all duration-300" 
-              style={{ width: `${progress}%` }}
-            ></div>
-          </div>
-        )}
-
-        {progress === 100 && (
-          <div className="text-sm text-green-600 bg-green-50 p-3 rounded-md border border-green-200">
-            Upload concluído com sucesso!
-          </div>
-        )}
-
-        <button
-          onClick={handleUpload}
-          disabled={!file || isUploading}
-          className="w-full bg-indigo-600 text-white font-bold py-2 px-4 rounded-md hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-        >
-          {isUploading ? "Enviando Bypass S3..." : "Iniciar Upload B2B"}
-        </button>
       </div>
     </div>
   );

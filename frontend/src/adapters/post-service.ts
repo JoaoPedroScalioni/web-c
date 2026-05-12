@@ -6,17 +6,9 @@ import { components, paths } from "../types/api";
 type PostDetailResponse = paths["/posts/{post_id}"]["get"]["responses"]["200"]["content"]["application/json"];
 type CommentCreateRequest = components["schemas"]["CommentCreateRequest"];
 type CommentResponse = paths["/posts/{post_id}/comments"]["post"]["responses"]["201"]["content"]["application/json"];
-type UploadIntentRequest = components["schemas"]["UploadIntentRequest"];
-type UploadIntentResponse = paths["/posts/upload-intent"]["post"]["responses"]["201"]["content"]["application/json"];
+type PostStatusUpdateRequest = components["schemas"]["PostStatusUpdateRequest"];
 
 // --- SERVICES (Usando o Base Client) ---
-export const createUploadIntent = async (request: UploadIntentRequest): Promise<UploadIntentResponse> => {
-  return fetchClient<UploadIntentResponse>("/posts/upload-intent", {
-    method: "POST",
-    body: JSON.stringify(request),
-  });
-};
-
 export const fetchPostDetail = async (postId: string): Promise<PostDetailResponse> => {
   return fetchClient<PostDetailResponse>(`/posts/${postId}`);
 };
@@ -59,9 +51,16 @@ export const addCommentToPost = async ({
   });
 };
 
-export const approvePost = async (postId: string): Promise<void> => {
-  return fetchClient<void>(`/posts/${postId}/approve`, {
-    method: "POST",
+export const updatePostStatus = async ({
+  postId,
+  request,
+}: {
+  postId: string;
+  request: PostStatusUpdateRequest;
+}): Promise<PostDetailResponse> => {
+  return fetchClient<PostDetailResponse>(`/posts/${postId}/status`, {
+    method: "PATCH",
+    body: JSON.stringify(request),
   });
 };
 
@@ -133,8 +132,18 @@ export const useAddComment = () => {
   });
 };
 
-export const useUploadIntent = () => {
-  return useMutation<UploadIntentResponse, ApiError, UploadIntentRequest>({
-    mutationFn: createUploadIntent,
+export const useUpdatePostStatus = () => {
+  const queryClient = useQueryClient();
+  return useMutation<
+    PostDetailResponse,
+    ApiError,
+    { postId: string; request: PostStatusUpdateRequest }
+  >({
+    mutationFn: updatePostStatus,
+    onSuccess: (updatedPost, variables) => {
+      // Invalida e atualiza cache localmente
+      queryClient.setQueryData(["post", variables.postId], updatedPost);
+      queryClient.invalidateQueries({ queryKey: ["pendingPosts"] });
+    },
   });
 };

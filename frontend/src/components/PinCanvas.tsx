@@ -14,17 +14,16 @@ interface PinCanvasProps {
 
 export default function PinCanvas({ postId, mediaUrl, existingComments }: PinCanvasProps) {
   const [isAdding, setIsAdding] = useState(false);
+  const [hasError, setHasError] = useState(false);
   const addCommentMutation = useAddComment();
   
   const mediaRef = useRef<HTMLImageElement>(null);
   const [mediaBounds, setMediaBounds] = useState({ width: 0, height: 0, left: 0, top: 0 });
 
-  // Calcula as dimensões reais da mídia, ignorando as barras do object-contain
   const calculateBounds = () => {
-    if (!mediaRef.current) return;
+    if (!mediaRef.current || hasError) return;
     const img = mediaRef.current;
     
-    // Precisamos garantir que a imagem já carregou para ter o naturalWidth
     if (!img.naturalWidth || !img.naturalHeight) return;
 
     const rect = img.getBoundingClientRect();
@@ -49,10 +48,9 @@ export default function PinCanvas({ postId, mediaUrl, existingComments }: PinCan
     });
   };
 
-  // Recalcula as dimensões quando a imagem carrega ou a janela muda de tamanho
   useEffect(() => {
     const imgElement = mediaRef.current;
-    if (!imgElement) return;
+    if (!imgElement || hasError) return;
 
     const resizeObserver = new ResizeObserver(() => {
       calculateBounds();
@@ -63,29 +61,25 @@ export default function PinCanvas({ postId, mediaUrl, existingComments }: PinCan
     return () => {
       resizeObserver.disconnect();
     };
-  }, []);
+  }, [hasError]);
 
   const handleCanvasClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!mediaRef.current) return;
+    if (!mediaRef.current || hasError) return;
     
     const rect = mediaRef.current.getBoundingClientRect();
     
-    // Normalizar o clique relativo à mídia de fato (descontando as barras)
     const clickXRelative = e.clientX - rect.left - mediaBounds.left;
     const clickYRelative = e.clientY - rect.top - mediaBounds.top;
 
-    // Validação Sniper Extra: Bloqueia cliques fora da área útil (nas barras pretas)
     if (
       clickXRelative < 0 || 
       clickXRelative > mediaBounds.width || 
       clickYRelative < 0 || 
       clickYRelative > mediaBounds.height
     ) {
-      // Clicou nas bordas/letterbox do object-contain, ignorar
       return;
     }
 
-    // Calcular as coordenadas percentuais (0.0 a 100.0) puras da mídia
     const xPercent = Number(((clickXRelative / mediaBounds.width) * 100).toFixed(2));
     const yPercent = Number(((clickYRelative / mediaBounds.height) * 100).toFixed(2));
 
@@ -110,11 +104,24 @@ export default function PinCanvas({ postId, mediaUrl, existingComments }: PinCan
     }
   };
 
+  if (hasError) {
+    return (
+      <div className="w-full h-full min-h-[300px] flex flex-col items-center justify-center bg-zinc-100 rounded-xl border border-dashed border-zinc-300">
+        <div className="bg-zinc-200 p-4 rounded-full mb-4">
+          <svg className="w-8 h-8 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+          </svg>
+        </div>
+        <p className="text-zinc-600 font-medium">Mídia não encontrada</p>
+        <p className="text-xs text-zinc-400 mt-1 max-w-xs text-center break-all">{mediaUrl}</p>
+      </div>
+    );
+  }
+
   return (
-    <div className="relative inline-block border border-gray-300 rounded-lg overflow-hidden shadow-lg bg-black">
-      {/* Wrapper do media */}
+    <div className="relative inline-block border border-zinc-800 rounded-xl overflow-hidden shadow-2xl bg-zinc-950 w-full h-full flex items-center justify-center min-h-[300px]">
       <div 
-        className="relative cursor-crosshair flex items-center justify-center" 
+        className="relative cursor-crosshair flex items-center justify-center w-full h-full" 
         onClick={handleCanvasClick}
       >
         <img 
@@ -122,12 +129,12 @@ export default function PinCanvas({ postId, mediaUrl, existingComments }: PinCan
           src={mediaUrl} 
           alt="Post Media" 
           onLoad={calculateBounds}
-          className="max-w-3xl max-h-[70vh] object-contain select-none"
+          onError={() => setHasError(true)}
+          className="max-w-full max-h-[70vh] object-contain select-none"
           draggable={false}
         />
 
-        {/* Container overlay perfeito sobre a mídia real para os Pins */}
-        {mediaBounds.width > 0 && (
+        {mediaBounds.width > 0 && !hasError && (
           <div 
             className="absolute pointer-events-none"
             style={{
@@ -140,23 +147,25 @@ export default function PinCanvas({ postId, mediaUrl, existingComments }: PinCan
             {existingComments.map((comment) => (
               <div
                 key={comment.id}
-                className="absolute flex items-center justify-center w-6 h-6 bg-red-600 text-white text-xs font-bold rounded-full transform -translate-x-1/2 -translate-y-1/2 shadow-md transition-transform pointer-events-auto cursor-pointer group hover:scale-125 hover:z-30"
+                className="absolute flex items-center justify-center w-7 h-7 bg-indigo-600 text-white text-xs font-bold rounded-full transform -translate-x-1/2 -translate-y-1/2 shadow-lg transition-transform pointer-events-auto cursor-pointer group hover:scale-125 hover:z-30 border-2 border-white"
                 style={{ left: `${comment.coord_x}%`, top: `${comment.coord_y}%` }}
               >
                 <span>!</span>
-                {/* Tooltip */}
-                <div className="absolute hidden group-hover:block bottom-full mb-2 bg-black/90 text-white text-xs p-2 rounded whitespace-nowrap z-50">
+                <div className="absolute hidden group-hover:block bottom-full mb-3 bg-zinc-900 text-white text-xs p-2.5 rounded-md whitespace-nowrap z-50 shadow-xl border border-zinc-700">
                   {comment.content}
+                  <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-zinc-900"></div>
                 </div>
               </div>
             ))}
           </div>
         )}
 
-        {/* Loading State visual overlay */}
         {isAdding && (
-          <div className="absolute inset-0 bg-black/40 flex items-center justify-center backdrop-blur-sm z-50">
-            <span className="text-white font-bold bg-black/60 px-4 py-2 rounded animate-pulse">Salvando Pin...</span>
+          <div className="absolute inset-0 bg-zinc-950/50 flex items-center justify-center backdrop-blur-sm z-50">
+            <span className="text-white font-medium bg-zinc-900 px-5 py-2.5 rounded-lg shadow-xl animate-pulse border border-zinc-800 flex items-center gap-2">
+              <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+              Salvando Pin...
+            </span>
           </div>
         )}
       </div>

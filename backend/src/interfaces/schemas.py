@@ -59,3 +59,7 @@ class PostDetailResponse(PostResponse):
 
 class ApprovePostRequest(BaseModel):
     client_id: UUID = Field(..., description="ID do cliente que está realizando a aprovação")
+
+class PostStatusUpdateRequest(BaseModel):
+    status: str = Field(..., description="Novo status do Post (ex: APROVADO, REJEITADO)")
+    client_id: Optional[UUID] = Field(None, description="Opcional: ID do cliente fazendo a alteração")

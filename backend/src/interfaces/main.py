@@ -5,11 +5,16 @@ from src.interfaces.auth import router as auth_router
 from src.domain.exceptions import DomainException, PostNotFoundError, InvalidCoordinateError
 from fastapi import Request
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 import logging
+import os
 
 # Configuração de Logs para auditoria técnica B2B
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
+
+# Garante que a pasta de uploads local existe no disco
+os.makedirs("uploads", exist_ok=True)
 
 # O coração do ciclo de vida da Aplicação B2B
 app = FastAPI(
@@ -18,16 +23,19 @@ app = FastAPI(
     version="1.0.0"
 )
 
-# Defina as origens permitidas
+# Defina as origens permitidas (Blindagem B2B)
 origins = [
-    "*",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "http://localhost:3001",
+    "http://127.0.0.1:3001",
 ]
 
 # Governança de CORS para permitir restrito acesso do Next.js
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
-    allow_credentials=False, # Importante: se usar "*", credentials deve ser False
+    allow_credentials=True, # Permitir tokens/cookies de autenticação
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -52,6 +60,9 @@ async def domain_exception_handler(request: Request, exc: DomainException):
 # Injeção dos Roteadores Clean Architecture Elevva
 app.include_router(auth_router)
 app.include_router(router)
+
+# Servindo arquivos estáticos locais (Custo Zero / Bye S3)
+app.mount("/media", StaticFiles(directory="uploads"), name="media")
 
 @app.get("/health")
 async def health_check():

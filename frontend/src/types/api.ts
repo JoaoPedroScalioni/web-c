@@ -25,7 +25,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/posts/upload-intent": {
+    "/posts/upload": {
         parameters: {
             query?: never;
             header?: never;
@@ -35,11 +35,10 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Create Upload Intent
-         * @description Início do ciclo: status PENDING_UPLOAD. O upload é direto pro S3 (Bypass),
-         *     mantendo o servidor leve e performático.
+         * Upload Media Local
+         * @description Substituição do S3: Armazena o vídeo localmente (custo zero) no volume /uploads.
          */
-        post: operations["create_upload_intent_posts_upload_intent_post"];
+        post: operations["upload_media_local_posts_upload_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -107,6 +106,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/posts/{post_id}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Update Post Status
+         * @description Magic Link Approval: Atualiza o status do Post (ex: APROVADO, REJEITADO) de forma pública/anônima.
+         */
+        patch: operations["update_post_status_posts__post_id__status_patch"];
+        trace?: never;
+    };
     "/health": {
         parameters: {
             query?: never;
@@ -154,6 +173,13 @@ export interface components {
              * Format: password
              */
             client_secret?: string | null;
+        };
+        /** Body_upload_media_local_posts_upload_post */
+        Body_upload_media_local_posts_upload_post: {
+            /** Calendar Id */
+            calendar_id: string;
+            /** File */
+            file: string;
         };
         /** CommentCreateRequest */
         CommentCreateRequest: {
@@ -299,44 +325,18 @@ export interface components {
          * @enum {string}
          */
         PostStatus: "PENDING_UPLOAD" | "CRIADO" | "AGUARDANDO_APROVACAO" | "APROVADO" | "REJEITADO";
-        /** UploadIntentRequest */
-        UploadIntentRequest: {
+        /** PostStatusUpdateRequest */
+        PostStatusUpdateRequest: {
             /**
-             * Filename
-             * @description Nome original do arquivo
-             * @example campanha_outono.mp4
+             * Status
+             * @description Novo status do Post (ex: APROVADO, REJEITADO)
              */
-            filename: string;
+            status: string;
             /**
-             * Content Type
-             * @description MIME type do arquivo
-             * @example video/mp4
+             * Client Id
+             * @description Opcional: ID do cliente fazendo a alteração
              */
-            content_type: string;
-            /**
-             * File Size Bytes
-             * @description Tamanho do arquivo em bytes
-             */
-            file_size_bytes: number;
-            /**
-             * Calendar Id
-             * Format: uuid
-             * @description ID do calendário para vincular o novo Post
-             */
-            calendar_id: string;
-        };
-        /** UploadIntentResponse */
-        UploadIntentResponse: {
-            /**
-             * Upload Url
-             * @description URL assinada para upload direto ao S3
-             */
-            upload_url: string;
-            /**
-             * File Key
-             * @description Chave única gerada para o arquivo no storage
-             */
-            file_key: string;
+            client_id?: string | null;
         };
         /** ValidationError */
         ValidationError: {
@@ -393,7 +393,7 @@ export interface operations {
             };
         };
     };
-    create_upload_intent_posts_upload_intent_post: {
+    upload_media_local_posts_upload_post: {
         parameters: {
             query?: never;
             header?: never;
@@ -402,7 +402,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["UploadIntentRequest"];
+                "multipart/form-data": components["schemas"]["Body_upload_media_local_posts_upload_post"];
             };
         };
         responses: {
@@ -412,7 +412,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["UploadIntentResponse"];
+                    "application/json": components["schemas"]["PostResponse"];
                 };
             };
             /** @description Validation Error */
@@ -534,6 +534,41 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_post_status_posts__post_id__status_patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                post_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PostStatusUpdateRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PostResponse"];
+                };
             };
             /** @description Validation Error */
             422: {

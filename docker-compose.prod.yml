@@ -29,6 +29,8 @@ services:
       - .env.production
     environment:
       - TZ=America/Sao_Paulo
+    volumes:
+      - elevva_uploads_prod:/app/uploads
     depends_on:
       db:
         condition: service_healthy
@@ -75,3 +77,4 @@ networks:
 volumes:
   elevva_postgres_data_prod:
     # Volume seguro e isolado do dev
+  elevva_uploads_prod:

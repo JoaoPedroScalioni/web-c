@@ -37,24 +37,25 @@ class AddCommentUseCase:
         )
         return await self.repo.save_comment(comment_entity)
 
-class ApprovePostUseCase:
-    """Implementa o fluxo de aprovação do Kanban B2B sem conhecer SQLAlchemy"""
+class UpdatePostStatusUseCase:
+    """Implementa a mudança de status do Kanban B2B sem conhecer SQLAlchemy"""
     def __init__(self, post_repo: PostRepository):
         self.post_repo = post_repo
 
-    async def execute(self, post_id: UUID) -> bool:
+    async def execute(self, post_id: UUID, new_status: str) -> bool:
         post = await self.post_repo.get_by_id(post_id)
         if not post:
             raise PostNotFoundError(str(post_id))
         
         from src.domain.entities import PostStatus
         
-        # Validação do Motor de Estados Kanban da Agência
-        if post.status == PostStatus.APROVADO:
-            raise InvalidCoordinateError("Violação de Estado: O Post já está chancelado como Aprovado.")
+        try:
+            status_enum = PostStatus(new_status)
+        except ValueError:
+            raise InvalidCoordinateError(f"Status {new_status} não é um status válido.")
             
-        post.status = PostStatus.APROVADO
-        await self.post_repo.save(post) # Assumindo que o repo suporta save(post)
+        post.status = status_enum
+        await self.post_repo.save(post)
         return True
 
 class UploadMediaIntentUseCase:
