@@ -1,6 +1,7 @@
 import QueryProvider from "../src/providers/QueryProvider";
 import "./globals.css";
 import { LayoutDashboard, FileVideo, Settings, LogOut } from "lucide-react";
+import Link from "next/link";
 
 export const metadata = {
   title: "Elevva Marketing B2B",
@@ -26,18 +27,18 @@ export default function RootLayout({
             </div>
             
             <nav className="flex-1 py-6 px-3 space-y-1">
-              <a href="#" className="flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-zinc-800 hover:text-white transition-colors">
+              <Link href="/dashboard" className="flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-zinc-800 hover:text-white transition-colors">
                 <LayoutDashboard size={20} />
                 <span className="font-medium text-sm">Dashboard</span>
-              </a>
-              <a href="/kanban" className="flex items-center gap-3 px-3 py-2.5 rounded-md bg-zinc-800 text-white transition-colors">
+              </Link>
+              <Link href="/kanban" className="flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-zinc-800 hover:text-white transition-colors">
                 <FileVideo size={20} />
                 <span className="font-medium text-sm">Fluxo de Aprovação</span>
-              </a>
-              <a href="#" className="flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-zinc-800 hover:text-white transition-colors">
+              </Link>
+              <Link href="/settings" className="flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-zinc-800 hover:text-white transition-colors">
                 <Settings size={20} />
                 <span className="font-medium text-sm">Configurações</span>
-              </a>
+              </Link>
             </nav>
 
             <div className="p-4 border-t border-zinc-800">
