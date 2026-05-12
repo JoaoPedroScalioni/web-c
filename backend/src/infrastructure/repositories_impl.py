@@ -25,6 +25,15 @@ class SQLAlchemyPostRepository(PostRepository):
             return None
         return PostEntity.model_validate(post_model, from_attributes=True)
 
+    async def get_all(self) -> list[PostEntity]:
+        query = await self.session.execute(
+            select(PostModel)
+            .options(selectinload(PostModel.comments))
+            .order_by(PostModel.created_at.desc())
+        )
+        post_models = query.scalars().all()
+        return [PostEntity.model_validate(p, from_attributes=True) for p in post_models]
+
     async def save(self, post: PostEntity) -> PostEntity:
         # Placeholder for later implementation of saving
         pass

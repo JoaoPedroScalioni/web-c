@@ -14,28 +14,7 @@ export const fetchPostDetail = async (postId: string): Promise<PostDetailRespons
 };
 
 export const fetchPendingPosts = async (): Promise<PostDetailResponse[]> => {
-  // TODO: Quando backend tiver GET /posts real com a rota paths["/posts"]["get"]["responses"]["200"]
-  // Bastará retornar fetchClient<GetPostsResponse>("/posts?status=AGUARDANDO_APROVACAO");
-  
-  // Mock temporário compatível com a interface restrita PostDetailResponse
-  return [
-    {
-      id: "123e4567-e89b-12d3-a456-426614174000",
-      calendar_id: "00000000-0000-0000-0000-000000000000",
-      media_url: "https://www.w3schools.com/html/mov_bbb.mp4",
-      status: "AGUARDANDO_APROVACAO",
-      comments: [
-        {
-          id: "c1",
-          post_id: "123e4567-e89b-12d3-a456-426614174000",
-          user_id: "u1",
-          content: "Ajustar o contraste dessa cena.",
-          coord_x: 20.5,
-          coord_y: 45.2,
-        }
-      ]
-    }
-  ];
+  return fetchClient<PostDetailResponse[]>("/posts");
 };
 
 export const addCommentToPost = async ({

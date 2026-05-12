@@ -19,9 +19,10 @@ from src.infrastructure.models import PostModel, CommentModel, UserModel
 from src.domain.repositories import StorageRepository
 from src.domain.entities import PostStatus
 from src.interfaces.auth import get_current_user
-from src.application.use_cases import GetPostDetailUseCase, AddCommentUseCase, UpdatePostStatusUseCase
+from src.application.use_cases import GetPostDetailUseCase, AddCommentUseCase, UpdatePostStatusUseCase, GetAllPostsUseCase
 from src.infrastructure.repositories_impl import SQLAlchemyPostRepository
 from src.infrastructure.utils.time_service import TimeService
+from typing import List
 
 router = APIRouter(prefix="/posts", tags=["Kanban Posts B2B"])
 
@@ -77,6 +78,15 @@ async def create_post(
     await db.commit()
     await db.refresh(new_post)
     return new_post
+
+@router.get("", response_model=List[PostDetailResponse])
+async def list_posts(db: AsyncSession = Depends(get_db)):
+    """
+    Retorna a lista de compras (Galeria B2B) com todos os posts e seus status.
+    """
+    repo = SQLAlchemyPostRepository(db)
+    use_case = GetAllPostsUseCase(repo)
+    return await use_case.execute()
 
 @router.get("/{post_id}", response_model=PostDetailResponse, responses={404: {"description": "Post não localizado"}})
 async def get_post(post_id: UUID, db: AsyncSession = Depends(get_db)):

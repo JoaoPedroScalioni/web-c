@@ -4,8 +4,9 @@ import { useQueryClient } from "@tanstack/react-query";
 import { usePendingPosts } from "../../src/adapters/post-service";
 import PinCanvas from "../../src/components/PinCanvas";
 import UploadManager from "../../src/components/UploadManager";
-import { Check, X, MessageSquareWarning, Link as LinkIcon, CheckCircle2 } from "lucide-react";
+import { Check, X, MessageSquareWarning, Link as LinkIcon, CheckCircle2, FolderOpen } from "lucide-react";
 import { useState } from "react";
+import Link from "next/link";
 
 export default function KanbanPage() {
   const { data: pendingPosts, isLoading, isError } = usePendingPosts();
@@ -65,7 +66,11 @@ export default function KanbanPage() {
           <p className="text-zinc-500 mt-2">Analise as mídias, adicione pins de correção e decida o status da campanha.</p>
         </div>
         
-        <div className="w-full xl:w-auto">
+        <div className="w-full xl:w-auto flex items-center gap-4">
+          <Link href="/dashboard" className="hidden md:flex items-center gap-2 px-4 py-2 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 rounded-lg font-semibold transition-all border border-zinc-200">
+            <FolderOpen size={18} />
+            Ver Galeria do Cliente
+          </Link>
           <UploadManager 
             calendarId="123e4567-e89b-12d3-a456-426614174000" // Mockado para Demo
             onUploadSuccess={() => queryClient.invalidateQueries({ queryKey: ["pendingPosts"] })}

@@ -14,6 +14,13 @@ class GetPostDetailUseCase:
             raise PostNotFoundError(str(post_id))
         return post
 
+class GetAllPostsUseCase:
+    def __init__(self, repo: PostRepository):
+        self.repo = repo
+
+    async def execute(self) -> list[PostEntity]:
+        return await self.repo.get_all()
+
 class AddCommentUseCase:
     def __init__(self, repo: PostRepository, time_service: TimeService):
         self.repo = repo

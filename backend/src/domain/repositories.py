@@ -13,6 +13,10 @@ class PostRepository(ABC):
         pass
 
     @abstractmethod
+    async def get_all(self) -> list[PostEntity]:
+        pass
+
+    @abstractmethod
     async def save(self, post: PostEntity) -> PostEntity:
         pass
 
