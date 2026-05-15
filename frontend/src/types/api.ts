@@ -200,13 +200,13 @@ export interface components {
              * @description Posição X em %
              * @example 45.5
              */
-            coord_x: number;
+            coord_x?: number | null;
             /**
              * Coord Y
              * @description Posição Y em %
              * @example 78.2
              */
-            coord_y: number;
+            coord_y?: number | null;
         };
         /** CommentResponse */
         CommentResponse: {
@@ -237,12 +237,12 @@ export interface components {
              * Coord X
              * @description Coordenada X em %
              */
-            coord_x: number;
+            coord_x?: number | null;
             /**
              * Coord Y
              * @description Coordenada Y em %
              */
-            coord_y: number;
+            coord_y?: number | null;
         };
         /** HTTPValidationError */
         HTTPValidationError: {

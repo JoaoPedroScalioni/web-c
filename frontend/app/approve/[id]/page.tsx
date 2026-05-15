@@ -1,7 +1,8 @@
 "use client";
 
 import { usePostDetail, useUpdatePostStatus } from "../../../src/adapters/post-service";
-import PinCanvas from "../../../src/components/PinCanvas";
+import MediaViewer from "../../../src/components/MediaViewer";
+import CommentSection from "../../../src/components/CommentSection";
 import { Check, X, Link, AlertCircle, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
@@ -80,18 +81,14 @@ export default function ApprovePage({ params }: { params: { id: string } }) {
         <div className="flex-1 flex items-center justify-center p-4 pt-24 md:p-12 relative h-full">
           {/* Reutilizando o PinCanvas em Modo Escuro/Premium */}
           <div className="w-full max-w-4xl h-full flex items-center justify-center relative shadow-2xl rounded-2xl overflow-hidden ring-1 ring-white/10 bg-black/50">
-            <PinCanvas 
-              postId={post.id} 
-              mediaUrl={post.media_url} 
-              existingComments={post.comments} 
-            />
+            <MediaViewer mediaUrl={post.media_url} />
           </div>
         </div>
       </div>
 
       {/* Direita: Painel de Controle e Feedback */}
-      <div className="w-full md:w-[400px] bg-zinc-900 flex flex-col h-full md:h-screen sticky top-0 overflow-y-auto custom-scrollbar">
-        <div className="p-8 flex-1 flex flex-col">
+      <div className="w-full md:w-[450px] bg-zinc-900 flex flex-col h-full md:h-screen sticky top-0 overflow-y-auto custom-scrollbar">
+        <div className="p-8 md:p-10 flex-1 flex flex-col">
           
           <div className="mb-8">
             <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider mb-4 border ${
@@ -107,35 +104,12 @@ export default function ApprovePage({ params }: { params: { id: string } }) {
             
             <h2 className="text-3xl font-bold tracking-tight mb-3">Revisão de Peça</h2>
             <p className="text-zinc-400 text-sm leading-relaxed">
-              Analise o material ao lado. Para solicitar alterações precisas, <strong className="text-indigo-400">clique diretamente na imagem ou vídeo</strong> para fixar um Pin de feedback.
+              Analise o material ao lado. Para solicitar alterações precisas, utilize o campo de comentários abaixo.
             </p>
           </div>
 
-          {/* Lista de Pins */}
-          <div className="flex-1 mb-8">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-zinc-100">Feedbacks Apontados</h3>
-              <span className="bg-zinc-800 text-zinc-300 text-xs py-1 px-2.5 rounded-full font-bold">
-                {post.comments.length}
-              </span>
-            </div>
-            
-            {post.comments.length > 0 ? (
-              <ul className="space-y-3">
-                {post.comments.map(c => (
-                  <li key={c.id} className="text-sm bg-zinc-800/50 p-4 rounded-xl border border-zinc-700/50 text-zinc-300 shadow-inner">
-                    <div className="flex justify-between items-start mb-1">
-                      <span className="font-bold text-indigo-400 text-xs">Pin #{c.id.split('-')[0]}</span>
-                    </div>
-                    <p className="leading-relaxed">{c.content}</p>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <div className="p-6 border border-dashed border-zinc-800 rounded-xl text-center">
-                <p className="text-sm text-zinc-500">Nenhum ajuste solicitado ainda.</p>
-              </div>
-            )}
+          <div className="flex-1 mb-8 overflow-y-auto">
+            <CommentSection postId={post.id} existingComments={post.comments} theme="dark" />
           </div>
 
           {/* Botões de Ação */}
@@ -167,7 +141,7 @@ export default function ApprovePage({ params }: { params: { id: string } }) {
                 )}
                 
                 {isApproved && (
-                  <div className="w-full py-4 text-center bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-xl font-bold">
+                  <div className="w-full py-4 text-center bg-emerald-500/10 border border-emerald-500/30 shadow-[0_0_20px_rgba(5,150,105,0.2)] text-emerald-400 rounded-xl font-bold transition-all">
                     Material Aprovado! 🎉
                   </div>
                 )}

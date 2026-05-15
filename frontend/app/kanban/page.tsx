@@ -2,16 +2,27 @@
 
 import { useQueryClient } from "@tanstack/react-query";
 import { usePendingPosts } from "../../src/adapters/post-service";
-import PinCanvas from "../../src/components/PinCanvas";
+import MediaViewer from "../../src/components/MediaViewer";
+import CommentSection from "../../src/components/CommentSection";
 import UploadManager from "../../src/components/UploadManager";
-import { Check, X, MessageSquareWarning, Link as LinkIcon, CheckCircle2, FolderOpen } from "lucide-react";
+import { Check, X, MessageSquareWarning, Link as LinkIcon, CheckCircle2, FolderOpen, Loader2 } from "lucide-react";
 import { useState } from "react";
 import Link from "next/link";
 
 export default function KanbanPage() {
   const { data: pendingPosts, isLoading, isError } = usePendingPosts();
+  const { mutate: updateStatus, isPending: isUpdatingStatus } = useUpdatePostStatus();
   const queryClient = useQueryClient();
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [actingPostId, setActingPostId] = useState<string | null>(null);
+
+  const handleUpdateStatus = (postId: string, status: "APROVADO" | "REJEITADO") => {
+    setActingPostId(postId);
+    updateStatus(
+      { postId, request: { status } },
+      { onSettled: () => setActingPostId(null) }
+    );
+  };
 
   const copyMagicLink = (id: string) => {
     const url = `${window.location.origin}/approve/${id}`;
@@ -84,11 +95,7 @@ export default function KanbanPage() {
             
             {/* Seção da Mídia com o Canvas Interativo */}
             <div className="flex-1 p-6 bg-zinc-100/50 border-b lg:border-b-0 lg:border-r border-zinc-200 flex flex-col items-center justify-center relative min-h-[400px]">
-              <PinCanvas 
-                postId={post.id} 
-                mediaUrl={post.media_url} 
-                existingComments={post.comments} 
-              />
+              <MediaViewer mediaUrl={post.media_url} />
             </div>
 
             {/* Seção de Controles e Decisão */}
@@ -104,31 +111,10 @@ export default function KanbanPage() {
                 
                 <h3 className="text-xl font-bold text-zinc-900 mb-2">Revisão Criativa</h3>
                 <p className="text-sm text-zinc-500 mb-8 leading-relaxed">
-                  Clique diretamente sobre o vídeo para adicionar um pin visual. Descreva com precisão o ajuste necessário para a equipe de edição.
+                  Utilize o campo de comentários abaixo para descrever com precisão os ajustes necessários para a equipe de edição.
                 </p>
                 
-                {post.comments.length > 0 ? (
-                  <div className="mb-8">
-                    <div className="flex items-center justify-between mb-3">
-                      <h4 className="font-semibold text-zinc-900 text-sm">Feedbacks Atuais</h4>
-                      <span className="bg-zinc-100 text-zinc-600 text-xs py-0.5 px-2 rounded-full font-medium">
-                        {post.comments.length}
-                      </span>
-                    </div>
-                    <ul className="space-y-2 max-h-48 overflow-y-auto pr-2 custom-scrollbar">
-                      {post.comments.map(c => (
-                        <li key={c.id} className="text-xs bg-zinc-50 p-3 rounded-lg border border-zinc-200 text-zinc-700 shadow-sm">
-                          <span className="font-semibold text-indigo-600 mr-2">#{c.id.split('-')[0]}</span>
-                          {c.content}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                ) : (
-                  <div className="mb-8 p-4 bg-zinc-50 border border-zinc-100 rounded-lg text-center">
-                    <p className="text-sm text-zinc-400">Nenhum feedback apontado ainda.</p>
-                  </div>
-                )}
+                <CommentSection postId={post.id} existingComments={post.comments} />
               </div>
 
               <div className="space-y-3 pt-6 border-t border-zinc-100 mt-auto">
@@ -149,12 +135,20 @@ export default function KanbanPage() {
                   )}
                 </button>
                 <div className="flex gap-2">
-                  <button className="flex-1 flex items-center justify-center gap-2 py-3 bg-zinc-900 hover:bg-zinc-800 text-white rounded-lg font-medium transition-all shadow-sm">
-                    <Check size={18} />
+                  <button 
+                    onClick={() => handleUpdateStatus(post.id, "APROVADO")}
+                    disabled={isUpdatingStatus}
+                    className="flex-1 flex items-center justify-center gap-2 py-3 bg-zinc-900 hover:bg-zinc-800 text-white rounded-lg font-medium transition-all shadow-sm disabled:opacity-70 disabled:cursor-not-allowed"
+                  >
+                    {isUpdatingStatus && actingPostId === post.id ? <Loader2 size={18} className="animate-spin" /> : <Check size={18} />}
                     Aprovar Internamente
                   </button>
-                  <button className="flex-1 flex items-center justify-center gap-2 py-3 bg-white hover:bg-red-50 text-red-600 border border-red-200 hover:border-red-300 rounded-lg font-medium transition-all shadow-sm">
-                    <X size={18} />
+                  <button 
+                    onClick={() => handleUpdateStatus(post.id, "REJEITADO")}
+                    disabled={isUpdatingStatus}
+                    className="flex-1 flex items-center justify-center gap-2 py-3 bg-white hover:bg-red-50 text-red-600 border border-red-200 hover:border-red-300 rounded-lg font-medium transition-all shadow-sm disabled:opacity-70 disabled:cursor-not-allowed"
+                  >
+                    {isUpdatingStatus && actingPostId === post.id ? <Loader2 size={18} className="animate-spin" /> : <X size={18} />}
                     Rejeitar
                   </button>
                 </div>
