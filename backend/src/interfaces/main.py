@@ -2,7 +2,7 @@ from fastapi import FastAPI # O framework principal da nossa API
 from fastapi.middleware.cors import CORSMiddleware # Para permitir que o Frontend acesse o Backend com segurança
 from src.interfaces.routes import router
 from src.interfaces.auth import router as auth_router
-from src.domain.exceptions import DomainException, PostNotFoundError, InvalidCoordinateError
+from src.domain.exceptions import DomainException, PostNotFoundError
 from fastapi import Request
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles

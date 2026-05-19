@@ -24,8 +24,8 @@ class PostResponse(BaseModel):
 class CommentCreateRequest(BaseModel):
     user_id: UUID = Field(..., description="UUID do colaborador que está criando o Pin")
     content: str = Field(..., description="Texto do feedback visual", example="Ajustar saturação nesta área")
-    coord_x: Optional[float] = Field(None, ge=0.0, le=100.0, description="Posição X em %", example=45.5)
-    coord_y: Optional[float] = Field(None, ge=0.0, le=100.0, description="Posição Y em %", example=78.2)
+    coord_x: Optional[float] = Field(None, description="Posição X em %", example=45.5)
+    coord_y: Optional[float] = Field(None, description="Posição Y em %", example=78.2)
 
 class CommentResponse(BaseModel):
     id: UUID = Field(..., description="ID Identificador do Pin")

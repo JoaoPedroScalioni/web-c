@@ -186,7 +186,7 @@ export interface components {
             /**
              * User Id
              * Format: uuid
-             * @description UUID do colaborador que está criando o Pin
+             * @description UUID do colaborador que está criando o Feedback
              */
             user_id: string;
             /**
@@ -213,7 +213,7 @@ export interface components {
             /**
              * Id
              * Format: uuid
-             * @description ID Identificador do Pin
+             * @description ID Identificador do Feedback
              */
             id: string;
             /**
@@ -290,7 +290,7 @@ export interface components {
             status: components["schemas"]["PostStatus"];
             /**
              * Comments
-             * @description Lista de feedbacks (Pins) do vídeo
+             * @description Lista de feedbacks do vídeo
              * @default []
              */
             comments: components["schemas"]["CommentResponse"][];

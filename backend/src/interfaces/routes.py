@@ -99,15 +99,15 @@ async def get_post(post_id: UUID, db: AsyncSession = Depends(get_db)):
 
 # --- VALIDAÇÃO SNIPER E SWAGGER ---
 @router.post("/{post_id}/comments", response_model=CommentResponse, status_code=201, 
-             responses={404: {"description": "Post não localizado"}, 400: {"description": "Coordenadas inválidas"}})
-async def add_visual_pin_comment(
+             responses={404: {"description": "Post não localizado"}})
+async def add_comment(
     post_id: UUID, 
     request: CommentCreateRequest, 
     db: AsyncSession = Depends(get_db)
 ):
     """
-    Validação Sniper: o Pydantic garante x/y entre 0 e 100. 
-    Se falhar, o Swagger já expõe o erro 400 automaticamente.
+    Rota para adicionar comentários à mídia. 
+    A validação estrutural é garantida pelo Pydantic antes de chegar ao Caso de Uso.
     """
     repo = SQLAlchemyPostRepository(db)
     use_case_detail = GetPostDetailUseCase(repo)
@@ -118,7 +118,7 @@ async def add_visual_pin_comment(
         post_id=post_id,
         user_id=request.user_id,
         content=request.content,
-        coord_x=request.coord_x, # <--- REGRA DE NEGÓCIO PROTEGIDA
+        coord_x=request.coord_x,
         coord_y=request.coord_y
     )
 

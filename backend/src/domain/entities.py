@@ -20,14 +20,7 @@ class PostStatus(Enum):
     APROVADO = "APROVADO"
     REJEITADO = "REJEITADO"
 
-# --- VALIDAÇÃO SNIPER ---
-class Coordinate(BaseModel):
-    """
-    Aqui nasce a Validação Sniper. ge=0.0 e le=100.0 garantem 
-    matematicamente que o Pin nunca caia fora da tela.
-    """
-    x: float = Field(..., ge=0.0, le=100.0)
-    y: float = Field(..., ge=0.0, le=100.0)
+
 
 class User(BaseModel):
     id: UUID 
@@ -45,8 +38,8 @@ class CommentEntity(BaseModel):
     post_id: UUID 
     user_id: UUID 
     content: str 
-    coord_x: float = Field(..., ge=0.0, le=100.0) # <--- SNIPER X
-    coord_y: float = Field(..., ge=0.0, le=100.0) # <--- SNIPER Y
+    coord_x: Optional[float] = None
+    coord_y: Optional[float] = None
     created_at: Optional[datetime] 
 
 class PostEntity(BaseModel):
@@ -65,6 +58,4 @@ class Post(PostEntity):
     pass
 
 class Comment(CommentEntity):
-    @property
-    def coord(self):
-        return Coordinate(x=self.coord_x, y=self.coord_y)
+    pass

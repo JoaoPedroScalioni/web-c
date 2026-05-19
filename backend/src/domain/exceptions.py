@@ -9,9 +9,9 @@ class PostNotFoundError(DomainException):
     def __init__(self, post_id: str):
         super().__init__(f"Post {post_id} não localizado na infraestrutura Elevva.")
 
-class InvalidCoordinateError(DomainException):
-    """Lançado quando um Pin Visual está fora dos limites (0-100)"""
-    def __init__(self, detail: str = "Coordenadas do Pin inválidas para o Canvas."):
+class InvalidStatusError(DomainException):
+    """Lançado quando uma transição de status do Kanban é inválida"""
+    def __init__(self, detail: str = "Status de fluxo de trabalho inválido."):
         super().__init__(detail)
 
 class UnauthorizedDomainError(DomainException):

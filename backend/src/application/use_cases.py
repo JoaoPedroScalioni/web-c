@@ -2,7 +2,7 @@ from uuid import UUID
 from src.domain.entities import PostEntity, CommentEntity
 from src.domain.repositories import PostRepository
 from src.infrastructure.utils.time_service import TimeService
-from src.domain.exceptions import PostNotFoundError, InvalidCoordinateError
+from src.domain.exceptions import PostNotFoundError, InvalidStatusError
 
 class GetPostDetailUseCase:
     def __init__(self, repo: PostRepository):
@@ -26,12 +26,8 @@ class AddCommentUseCase:
         self.repo = repo
         self.time_service = time_service
 
-    async def execute(self, post_id: UUID, user_id: UUID, content: str, coord_x: float, coord_y: float) -> CommentEntity:
+    async def execute(self, post_id: UUID, user_id: UUID, content: str, coord_x: float | None = None, coord_y: float | None = None) -> CommentEntity:
         from uuid import uuid4
-        
-        # Regra de Negócio Sniper: Não aceitar coordenadas negativas (fora do canvas)
-        if coord_x < 0 or coord_y < 0:
-            raise InvalidCoordinateError("Regra B2B: As coordenadas do Pin não podem ser negativas.")
         
         comment_entity = CommentEntity(
             id=uuid4(),
@@ -59,7 +55,7 @@ class UpdatePostStatusUseCase:
         try:
             status_enum = PostStatus(new_status)
         except ValueError:
-            raise InvalidCoordinateError(f"Status {new_status} não é um status válido.")
+            raise InvalidStatusError(f"Status '{new_status}' não é um status válido.")
             
         post.status = status_enum
         await self.post_repo.save(post)
