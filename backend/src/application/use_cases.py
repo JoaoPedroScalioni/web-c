@@ -40,6 +40,14 @@ class AddCommentUseCase:
         )
         return await self.repo.save_comment(comment_entity)
 
+class DeletePostUseCase:
+    def __init__(self, repo: PostRepository):
+        self.repo = repo
+
+    async def execute(self, post_id: UUID) -> None:
+        # Apenas delega para o repositório
+        await self.repo.delete(post_id)
+
 class UpdatePostStatusUseCase:
     """Implementa a mudança de status do Kanban B2B sem conhecer SQLAlchemy"""
     def __init__(self, post_repo: PostRepository):

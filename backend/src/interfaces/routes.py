@@ -19,7 +19,7 @@ from src.infrastructure.models import PostModel, CommentModel, UserModel
 from src.domain.repositories import StorageRepository
 from src.domain.entities import PostStatus
 from src.interfaces.auth import get_current_user
-from src.application.use_cases import GetPostDetailUseCase, AddCommentUseCase, UpdatePostStatusUseCase, GetAllPostsUseCase
+from src.application.use_cases import GetPostDetailUseCase, AddCommentUseCase, UpdatePostStatusUseCase, GetAllPostsUseCase, DeletePostUseCase
 from src.infrastructure.repositories_impl import SQLAlchemyPostRepository
 from src.infrastructure.utils.time_service import TimeService
 from typing import List
@@ -139,3 +139,12 @@ async def update_post_status(
     # Busca atualizado para retornar
     updated_post = await repo.get_by_id(post_id)
     return updated_post
+
+@router.delete("/{post_id}", status_code=204)
+async def delete_post(post_id: UUID, db: AsyncSession = Depends(get_db)):
+    """
+    Remove uma publicação permanentemente do sistema (Lixeira).
+    """
+    repo = SQLAlchemyPostRepository(db)
+    use_case = DeletePostUseCase(repo)
+    await use_case.execute(post_id)

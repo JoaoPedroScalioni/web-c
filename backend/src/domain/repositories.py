@@ -24,6 +24,10 @@ class PostRepository(ABC):
     async def save_comment(self, comment: CommentEntity) -> CommentEntity:
         pass
 
+    @abstractmethod
+    async def delete(self, post_id: UUID) -> None:
+        pass
+
 # --- PERFORMANCE E ESCALA (S3) ---
 class StorageRepository(ABC):
     """

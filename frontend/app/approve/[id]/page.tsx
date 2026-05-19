@@ -3,7 +3,8 @@
 import { usePostDetail, useUpdatePostStatus } from "../../../src/adapters/post-service";
 import MediaViewer from "../../../src/components/MediaViewer";
 import CommentSection from "../../../src/components/CommentSection";
-import { Check, X, Link, AlertCircle, Loader2 } from "lucide-react";
+import { Check, X, Link as LinkIcon, AlertCircle, Loader2 } from "lucide-react";
+import Link from "next/link";
 import { useState, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
 
@@ -75,6 +76,17 @@ export default function ApprovePage({ params }: { params: { id: string } }) {
               <h1 className="font-bold text-lg leading-tight drop-shadow-md">Elevva Studio</h1>
               <p className="text-xs text-zinc-300 drop-shadow-md">Revisão Criativa</p>
             </div>
+          </div>
+          
+          {/* Botão de Fechar/Voltar (X) */}
+          <div className="pointer-events-auto">
+            <Link 
+              href="/kanban" 
+              className="w-10 h-10 bg-zinc-900/80 hover:bg-zinc-800 rounded-full flex items-center justify-center text-white backdrop-blur-sm transition-all border border-zinc-700 shadow-xl"
+              title="Voltar ao Painel"
+            >
+              <X size={20} />
+            </Link>
           </div>
         </header>
 

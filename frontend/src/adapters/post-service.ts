@@ -43,6 +43,12 @@ export const updatePostStatus = async ({
   });
 };
 
+export const deletePost = async (postId: string): Promise<void> => {
+  return fetchClient<void>(`/posts/${postId}`, {
+    method: "DELETE",
+  });
+};
+
 // --- REACT QUERY HOOKS (Tipados com ApiError) ---
 export const usePostDetail = (postId: string) => {
   return useQuery<PostDetailResponse, ApiError>({
@@ -122,6 +128,21 @@ export const useUpdatePostStatus = () => {
     onSuccess: (updatedPost, variables) => {
       // Invalida e atualiza cache localmente
       queryClient.setQueryData(["post", variables.postId], updatedPost);
+      queryClient.invalidateQueries({ queryKey: ["pendingPosts"] });
+    },
+  });
+};
+
+export const useDeletePost = () => {
+  const queryClient = useQueryClient();
+  return useMutation<void, ApiError, string>({
+    mutationFn: deletePost,
+    onSuccess: (_, postId) => {
+      // Remove do cache
+      queryClient.setQueryData<PostDetailResponse[]>(["pendingPosts"], (old) => {
+        if (!old) return old;
+        return old.filter(post => post.id !== postId);
+      });
       queryClient.invalidateQueries({ queryKey: ["pendingPosts"] });
     },
   });

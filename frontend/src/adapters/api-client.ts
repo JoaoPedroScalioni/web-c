@@ -24,10 +24,15 @@ export class ApiError extends Error {
  * Lança um ApiError em caso de falha, para que o TanStack Query possa capturar.
  */
 export async function fetchClient<T>(endpoint: string, options?: RequestInit): Promise<T> {
+  // Pega o token se estivermos rodando no navegador
+  const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
+  const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
+
   const response = await fetch(`${API_URL}${endpoint}`, {
     ...options,
     headers: {
       "Content-Type": "application/json",
+      ...authHeaders,
       ...options?.headers,
     },
   });
