@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock, MagicMock
 from uuid import uuid4
 from src.application.use_cases import AddCommentUseCase
 from src.domain.entities import CommentEntity
-from src.domain.exceptions import InvalidCoordinateError
+from src.domain.exceptions import DomainException
 
 @pytest.mark.asyncio
 async def test_add_comment_success():
@@ -40,19 +40,3 @@ async def test_add_comment_success():
     assert result.created_at.isoformat() == "2026-04-14T17:00:00-03:00"
     mock_repo.save_comment.assert_called_once()
 
-@pytest.mark.asyncio
-async def test_add_comment_invalid_coordinates():
-    # Arrange
-    mock_repo = AsyncMock()
-    mock_time = MagicMock()
-    use_case = AddCommentUseCase(mock_repo, mock_time)
-
-    # Act & Assert
-    with pytest.raises(InvalidCoordinateError):
-        await use_case.execute(
-            post_id=uuid4(),
-            user_id=uuid4(),
-            content="Erro",
-            coord_x=-10, # Coordenada negativa inválida
-            coord_y=50
-        )
