@@ -28,13 +28,14 @@ class PostRepository(ABC):
     async def delete(self, post_id: UUID) -> None:
         pass
 
-# --- PERFORMANCE E ESCALA (S3) ---
+# --- PERFORMANCE E ESCALA (STORAGE) ---
 class StorageRepository(ABC):
     """
-    Aqui definimos a lógica do Bypass do Servidor. 
-    A implementação real será na AWS, mas o Domínio só enxerga o contrato.
+    Contrato de armazenamento de mídia. O domínio não sabe se é S3 ou FileSystem.
     """
     @abstractmethod
-    def generate_upload_url(self, file_name: str, file_type: str) -> dict:
-        """Geração de Pre-signed URL para performance cloud-first"""
+    def save_file(self, file_stream, filename: str) -> str:
+        """
+        Recebe um stream de dados, salva na infraestrutura e retorna a URL pública.
+        """
         pass

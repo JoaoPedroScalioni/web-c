@@ -11,7 +11,8 @@ export default function Sidebar() {
   if (
     pathname === "/teladelogin" || 
     pathname === "/" || 
-    pathname?.startsWith("/approve")
+    pathname?.startsWith("/approve") ||
+    pathname?.startsWith("/admin")
   ) {
     return null;
   }

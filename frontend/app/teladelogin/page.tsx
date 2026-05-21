@@ -5,9 +5,9 @@ import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 
 export default function LoginPage() {
-  // Mockamos as credenciais iniciais para a apresentação da banca (UX rápida)
-  const [email, setEmail] = useState("admin@elevva.com");
-  const [password, setPassword] = useState("secret123");
+  // Credenciais iniciais para a apresentação (joao@elevva.com - AGENCY ou mayane@cliente.com - CLIENT)
+  const [email, setEmail] = useState("joao@elevva.com");
+  const [password, setPassword] = useState("elevva2026");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
@@ -34,7 +34,18 @@ export default function LoginPage() {
 
       const data = await response.json();
       localStorage.setItem("access_token", data.access_token);
-      router.push("/kanban"); // Redireciona para o fluxo de trabalho
+      
+      // Decodifica a Role do token JWT de forma segura
+      try {
+        const payload = JSON.parse(atob(data.access_token.split('.')[1]));
+        if (payload.role === "AGENCY") {
+          router.push("/admin");
+        } else {
+          router.push("/kanban");
+        }
+      } catch (e) {
+        router.push("/kanban");
+      }
     } catch (err: any) {
       setError(err.message);
     } finally {

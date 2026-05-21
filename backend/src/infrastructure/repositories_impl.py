@@ -34,9 +34,17 @@ class SQLAlchemyPostRepository(PostRepository):
         post_models = query.scalars().all()
         return [PostEntity.model_validate(p, from_attributes=True) for p in post_models]
 
-    async def save(self, post: PostEntity) -> PostEntity:
-        # Placeholder for later implementation of saving
-        pass
+    async def save(self, post_entity: PostEntity) -> PostEntity:
+        query = await self.session.execute(
+            select(PostModel).filter(PostModel.id == post_entity.id)
+        )
+        post_model = query.scalars().first()
+        
+        if post_model:
+            post_model.status = post_entity.status
+            await self.session.commit()
+            
+        return post_entity
 
     async def save_comment(self, comment: CommentEntity) -> CommentEntity:
         new_comment = CommentModel(

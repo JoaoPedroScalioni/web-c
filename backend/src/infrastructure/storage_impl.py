@@ -1,42 +1,25 @@
-import boto3
-from botocore.exceptions import ClientError
-from botocore.config import Config
+import os
+import shutil
 from uuid import uuid4
-from src.infrastructure.config import settings
 from src.domain.repositories import StorageRepository
 
-class S3StorageRepository(StorageRepository):
-    """Implementação concreta de armazenamento na AWS S3"""
-    
-    def __init__(self):
-        self.s3_client = boto3.client(
-            's3',
-            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
-            region_name=settings.AWS_REGION,
-            config=Config(signature_version='s3v4')
-        )
-        self.bucket = settings.S3_BUCKET_NAME
+class LocalFileSystemStorageRepository(StorageRepository):
+    """
+    Implementação concreta do contrato de Storage usando o disco local.
+    Salva os dados em blocos (chunks) usando shutil para evitar sobrecarga de RAM.
+    """
+    def __init__(self, upload_dir: str = "uploads", base_url: str = "http://localhost:8000/media/"):
+        self.upload_dir = upload_dir
+        self.base_url = base_url
+        os.makedirs(self.upload_dir, exist_ok=True)
 
-    def generate_upload_url(self, file_name: str, file_type: str) -> dict:
-        extension = file_name.split('.')[-1] if '.' in file_name else 'bin'
-        secure_b2b_uuid = str(uuid4())
-        object_key = f"elevva-uploads/{secure_b2b_uuid}.{extension}"
+    def save_file(self, file_stream, filename: str) -> str:
+        ext = os.path.splitext(filename)[1]
+        safe_filename = f"{uuid4().hex}{ext}"
+        file_path = os.path.join(self.upload_dir, safe_filename)
         
-        try:
-            response = self.s3_client.generate_presigned_url(
-                'put_object',
-                Params={
-                    'Bucket': self.bucket, 
-                    'Key': object_key,
-                    'ContentType': file_type
-                },
-                ExpiresIn=300  
-            )
-        except ClientError as e:
-            raise ValueError(f"Recusa do Gerenciador S3 Bucket: {e}")
+        # Salva no disco local em chunks assíncronos geridos pelo FastAPI
+        with open(file_path, "wb") as buffer:
+            shutil.copyfileobj(file_stream, buffer)
             
-        return {
-            "upload_url": response,
-            "file_key": object_key
-        }
+        return f"{self.base_url}{safe_filename}"

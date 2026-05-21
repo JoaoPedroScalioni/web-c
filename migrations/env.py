@@ -10,8 +10,8 @@ from alembic import context
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 # 2. Regra Rigorosa: Importando configurações Pydantic V2 e o Base SQLAlchemy
-from backend.infrastructure.config import settings
-from backend.infrastructure.models import Base
+from backend.src.infrastructure.config import settings
+from backend.src.infrastructure.models import Base
 
 config = context.config
 

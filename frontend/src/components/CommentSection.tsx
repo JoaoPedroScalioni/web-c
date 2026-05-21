@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAddComment } from "../adapters/post-service";
 import { components } from "../types/api";
-import { Loader2, Send } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 type CommentResponse = components["schemas"]["CommentResponse"];
 
@@ -11,11 +11,27 @@ interface CommentSectionProps {
   postId: string;
   existingComments: CommentResponse[];
   theme?: "light" | "dark";
+  readOnly?: boolean;
 }
 
-export default function CommentSection({ postId, existingComments, theme = "light" }: CommentSectionProps) {
+export default function CommentSection({ postId, existingComments, theme = "light", readOnly = false }: CommentSectionProps) {
   const [commentText, setCommentText] = useState("");
+  const [userId, setUserId] = useState("00000000-0000-0000-0000-000000000001");
   const addCommentMutation = useAddComment();
+
+  useEffect(() => {
+    try {
+      const token = localStorage.getItem("access_token");
+      if (token) {
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        if (payload.sub) {
+          setUserId(payload.sub);
+        }
+      }
+    } catch (e) {
+      console.error("Erro ao ler token", e);
+    }
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,9 +41,8 @@ export default function CommentSection({ postId, existingComments, theme = "ligh
       {
         postId,
         comment: {
-          user_id: "00000000-0000-0000-0000-000000000001", // Mocked user
+          user_id: userId,
           content: commentText.trim(),
-          // coord_x e coord_y omitidos conforme nova refatoração
         },
       },
       {
@@ -38,7 +53,7 @@ export default function CommentSection({ postId, existingComments, theme = "ligh
 
   return (
     <div className="flex flex-col h-full">
-      {existingComments.length > 0 ? (
+      {existingComments.length > 0 && (
         <div className="mb-6">
           <div className="flex items-center justify-between mb-3">
             <h4 className={`font-semibold text-sm ${theme === "dark" ? "text-zinc-100" : "text-zinc-900"}`}>Feedbacks Atuais</h4>
@@ -67,31 +82,29 @@ export default function CommentSection({ postId, existingComments, theme = "ligh
             )})}
           </ul>
         </div>
-      ) : (
-        <div className={`mb-6 p-4 border rounded-lg text-center ${theme === "dark" ? "bg-zinc-800/20 border-dashed border-zinc-800" : "bg-zinc-50 border-zinc-100"}`}>
-          <p className="text-sm text-zinc-400">Nenhum feedback apontado ainda.</p>
-        </div>
       )}
 
-      <form onSubmit={handleSubmit} className="mt-auto">
-        <label className={`block text-xs font-semibold mb-2 ${theme === "dark" ? "text-zinc-300" : "text-zinc-700"}`}>Adicionar Feedback</label>
-        <div className="relative">
-          <textarea
-            value={commentText}
-            onChange={(e) => setCommentText(e.target.value)}
-            placeholder="Descreva o que precisa ser ajustado..."
-            className={`w-full text-sm border rounded-lg p-3 pr-12 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none h-24 ${theme === "dark" ? "bg-zinc-800 border-zinc-700 text-white placeholder-zinc-500" : "bg-white border-zinc-200 text-zinc-900"}`}
-            disabled={addCommentMutation.isPending}
-          />
-          <button
-            type="submit"
-            disabled={addCommentMutation.isPending || !commentText.trim()}
-            className="absolute bottom-3 right-3 p-1.5 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            {addCommentMutation.isPending ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
-          </button>
-        </div>
-      </form>
+      {!readOnly && (
+        <form onSubmit={handleSubmit} className="mt-auto">
+          <label className={`block text-xs font-semibold mb-2 ${theme === "dark" ? "text-zinc-300" : "text-zinc-700"}`}>Adicionar Feedback</label>
+          <div className="relative">
+            <textarea
+              value={commentText}
+              onChange={(e) => setCommentText(e.target.value)}
+              placeholder="Descreva o que precisa ser ajustado..."
+              className={`w-full text-sm border rounded-lg p-3 pr-20 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none h-24 ${theme === "dark" ? "bg-zinc-800 border-zinc-700 text-white placeholder-zinc-500" : "bg-white border-zinc-200 text-zinc-900"}`}
+              disabled={addCommentMutation.isPending}
+            />
+            <button
+              type="submit"
+              disabled={addCommentMutation.isPending || !commentText.trim()}
+              className="absolute bottom-3 right-3 px-3 py-1.5 bg-indigo-600 text-white font-bold text-xs rounded-md hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              {addCommentMutation.isPending ? <Loader2 size={16} className="animate-spin" /> : "Enviar"}
+            </button>
+          </div>
+        </form>
+      )}
     </div>
   );
 }

@@ -19,7 +19,7 @@ from src.infrastructure.models import PostModel, CommentModel, UserModel
 from src.domain.repositories import StorageRepository
 from src.domain.entities import PostStatus
 from src.interfaces.auth import get_current_user
-from src.application.use_cases import GetPostDetailUseCase, AddCommentUseCase, UpdatePostStatusUseCase, GetAllPostsUseCase, DeletePostUseCase
+from src.application.use_cases import GetPostDetailUseCase, AddCommentUseCase, UpdatePostStatusUseCase, GetAllPostsUseCase, DeletePostUseCase, UploadMediaUseCase
 from src.infrastructure.repositories_impl import SQLAlchemyPostRepository
 from src.infrastructure.utils.time_service import TimeService
 from typing import List
@@ -31,26 +31,20 @@ router = APIRouter(prefix="/posts", tags=["Kanban Posts B2B"])
 async def upload_media_local(
     calendar_id: str = Form(...),
     file: UploadFile = File(...),
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    storage: StorageRepository = Depends(get_storage)
 ):
     """
-    Substituição do S3: Armazena o vídeo localmente (custo zero) no volume /uploads.
+    Substituição do S3: Delega a stream pesada para a camada de Domínio/Infraestrutura.
+    Isolamento total da regra de persistência física.
     """
-    os.makedirs("uploads", exist_ok=True)
-    
-    # Gerar nome seguro
-    ext = os.path.splitext(file.filename)[1]
-    safe_filename = f"{uuid4().hex}{ext}"
-    file_path = os.path.join("uploads", safe_filename)
-    
-    # Salvar no disco local
-    with open(file_path, "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
+    upload_use_case = UploadMediaUseCase(storage)
+    media_url = await upload_use_case.execute(file.file, file.filename)
         
     # Salvar no Banco
     new_post = PostModel(
         calendar_id=calendar_id,
-        media_url=f"http://localhost:8000/media/{safe_filename}",
+        media_url=media_url,
         status=PostStatus.AGUARDANDO_APROVACAO,
         created_at=TimeService.get_now()
     )

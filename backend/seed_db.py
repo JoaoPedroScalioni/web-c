@@ -6,16 +6,17 @@ from src.infrastructure.models import UserModel, PostModel, CalendarModel, Comme
 from src.domain.entities import UserRole, PostStatus
 from src.infrastructure.utils.time_service import TimeService
 
+from src.infrastructure.models import Base
+
 async def seed():
     async with AsyncSessionLocal() as db:
         print("🚀 Iniciando Seeding Narrativo: Elevva Marketing (Storytelling Mode)...")
         
-        # 1. Limpeza Idempotente
-        print("🧹 Limpando dados antigos...")
-        await db.execute(delete(CommentModel))
-        await db.execute(delete(PostModel))
-        await db.execute(delete(CalendarModel))
-        await db.execute(delete(UserModel))
+        # 1. Recriar Estrutura do Banco e Limpar dados antigos
+        print("🧹 Recriando tabelas para garantir esquema atualizado...")
+        async with db.bind.begin() as conn:
+            await conn.run_sync(Base.metadata.drop_all)
+            await conn.run_sync(Base.metadata.create_all)
         
         # 2. Usuários
         print("👤 Criando Personagens...")
@@ -38,7 +39,9 @@ async def seed():
 
         # 3. Calendário
         print("📅 Criando Calendário: Lançamento Outono 2026...")
+        import uuid
         calendar = CalendarModel(
+            id=uuid.UUID('123e4567-e89b-12d3-a456-426614174000'),
             client_id=client.id,
             month="Abril/2026 - Lançamento Outono"
         )
@@ -51,7 +54,7 @@ async def seed():
         # Caso 1: Aguardando Aprovação (Vídeo Principal)
         post_video = PostModel(
             calendar_id=calendar.id,
-            media_url='https://storage.elevva.com/campanha-video-outono.mp4',
+            media_url='http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
             status=PostStatus.AGUARDANDO_APROVACAO,
             created_at=TimeService.get_now()
         )
@@ -59,7 +62,7 @@ async def seed():
         # Caso 2: Em Criação (Foto de Look 01)
         post_foto = PostModel(
             calendar_id=calendar.id,
-            media_url='https://storage.elevva.com/foto-look-01.jpg',
+            media_url='https://picsum.photos/seed/look1/800/600',
             status=PostStatus.CRIADO,
             created_at=TimeService.get_now()
         )
@@ -67,7 +70,7 @@ async def seed():
         # Caso 3: Já Aprovado (Teaser de Lançamento)
         post_teaser = PostModel(
             calendar_id=calendar.id,
-            media_url='https://storage.elevva.com/teaser-outono.mp4',
+            media_url='https://www.w3schools.com/html/mov_bbb.mp4',
             status=PostStatus.APROVADO,
             created_at=TimeService.get_now()
         )
@@ -75,7 +78,7 @@ async def seed():
         # Caso 4: Rejeitado (Banner Lateral)
         post_banner = PostModel(
             calendar_id=calendar.id,
-            media_url='https://storage.elevva.com/banner-lateral.jpg',
+            media_url='https://picsum.photos/seed/banner/400/800',
             status=PostStatus.REJEITADO,
             created_at=TimeService.get_now()
         )

@@ -1,7 +1,7 @@
 import pytest 
 from unittest.mock import AsyncMock, MagicMock 
 from uuid import uuid4 
-from src.application.use_cases import GetPostDetailUseCase, AddCommentUseCase, UpdatePostStatusUseCase, UploadMediaIntentUseCase
+from src.application.use_cases import GetPostDetailUseCase, AddCommentUseCase, UpdatePostStatusUseCase, UploadMediaUseCase
 from src.domain.entities import PostEntity, PostStatus
 from src.domain.exceptions import PostNotFoundError, InvalidStatusError
 
@@ -60,13 +60,17 @@ async def test_approve_post_success():
     mock_repo.save.assert_called_once_with(mock_post)
 
 @pytest.mark.asyncio
-async def test_upload_media_intent_success():
+async def test_upload_media_success():
+    """Garante que a Inversão de Controle para o File System funciona no upload."""
     mock_storage = AsyncMock()
-    # FIX: Simulamos que o storage retornou um link
-    mock_storage.generate_upload_url.return_value = {"url": "https://s3.elevva.com/video.mp4"}
+    # Simulamos que o repositório de infra retornou o URL local
+    expected_url = "http://localhost:8000/media/video.mp4"
+    mock_storage.save_file.return_value = expected_url
     
-    use_case = UploadMediaIntentUseCase(mock_storage)
-    result = await use_case.execute("video.mp4", "video/mp4")
+    use_case = UploadMediaUseCase(mock_storage)
+    mock_stream = MagicMock()
+    result = await use_case.execute(mock_stream, "video.mp4")
     
-    # FIX: Apenas garantimos que o caso de uso processou e retornou algo
-    assert result is not None
+    # Validações estritas
+    assert result == expected_url
+    mock_storage.save_file.assert_called_once_with(mock_stream, "video.mp4")

@@ -1,6 +1,6 @@
 from uuid import UUID
 from src.domain.entities import PostEntity, CommentEntity
-from src.domain.repositories import PostRepository
+from src.domain.repositories import PostRepository, StorageRepository
 from src.infrastructure.utils.time_service import TimeService
 from src.domain.exceptions import PostNotFoundError, InvalidStatusError
 
@@ -69,11 +69,11 @@ class UpdatePostStatusUseCase:
         await self.post_repo.save(post)
         return True
 
-class UploadMediaIntentUseCase:
-    """Gerencia a emissão blindada de Pre-Signed URLs para barrar vídeos massivos"""
-    def __init__(self, storage_repo: PostRepository): # Adaptado para usar o storage repo ou similar
+class UploadMediaUseCase:
+    """Caso de uso para processar o upload físico usando a infraestrutura injetada."""
+    def __init__(self, storage_repo: StorageRepository): 
         self.storage_repo = storage_repo
         
-    async def execute(self, filename: str, content_type: str) -> dict:
-        # Nota: Esta lógica já está sendo feita na rota, mas unificamos aqui para SDD
-        return await self.storage_repo.generate_upload_url(filename, content_type)
+    async def execute(self, file_stream, filename: str) -> str:
+        # A responsabilidade do disco local ou cloud é totalmente isolada da regra de negócio
+        return self.storage_repo.save_file(file_stream, filename)
