@@ -2,9 +2,10 @@ from sqlalchemy.ext.asyncio import AsyncSession # Gerenciamento de sessões ass�
 from sqlalchemy.future import select # Para realizar queries SQL modernas e rápidas
 from sqlalchemy.orm import selectinload # Carregamento otimizado de relacionamentos
 from uuid import UUID # Manipulação de identificadores únicos
-from src.domain.repositories import PostRepository # Interface definida no Domínio
-from src.infrastructure.models import PostModel, CommentModel # Modelos de banco de dados
-from src.domain.entities import PostEntity, CommentEntity # Entidades de negócio
+from src.domain.repositories import PostRepository
+from src.domain.exceptions import PostNotFoundError
+from src.infrastructure.models import PostModel, CommentModel
+from src.domain.entities import PostEntity, CommentEntity
 
 # [TIRE PRINT DAQUI - SLIDE: INVERSÃO DE DEPENDÊNCIA (IMPLEMENTAÇÃO)]
 # COMO EXPLICAR: "Esta é a implementação real do repositório usando SQLAlchemy. Perceba que ela 'herda' 
@@ -40,10 +41,11 @@ class SQLAlchemyPostRepository(PostRepository):
         )
         post_model = query.scalars().first()
         
-        if post_model:
-            post_model.status = post_entity.status
-            await self.session.commit()
-            
+        if not post_model:
+            raise PostNotFoundError(str(post_entity.id))
+
+        post_model.status = post_entity.status
+        await self.session.commit()
         return post_entity
 
     async def save_comment(self, comment: CommentEntity) -> CommentEntity:

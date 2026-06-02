@@ -11,9 +11,9 @@ class TimeService:
     
     @staticmethod
     def get_now() -> datetime:
-        """Retorna o horário atual injetado com o fuso horário configurado no settings"""
+        """Retorna o horário atual com timezone America/Sao_Paulo"""
         tz = pytz.timezone(settings.TIMEZONE)
-        return datetime.now(tz).replace(tzinfo=None)
+        return datetime.now(tz)
 
     @staticmethod
     def get_now_br() -> datetime:

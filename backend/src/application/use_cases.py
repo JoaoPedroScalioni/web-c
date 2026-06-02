@@ -45,7 +45,9 @@ class DeletePostUseCase:
         self.repo = repo
 
     async def execute(self, post_id: UUID) -> None:
-        # Apenas delega para o repositório
+        post = await self.repo.get_by_id(post_id)
+        if not post:
+            raise PostNotFoundError(str(post_id))
         await self.repo.delete(post_id)
 
 class UpdatePostStatusUseCase:

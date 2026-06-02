@@ -1,18 +1,13 @@
 from fastapi import APIRouter, HTTPException, Depends, UploadFile, File, Form
-from sqlalchemy.ext.asyncio import AsyncSession 
-from sqlalchemy.future import select 
-from sqlalchemy.orm import selectinload 
-from uuid import UUID, uuid4
-import shutil
-import os
+from sqlalchemy.ext.asyncio import AsyncSession
+from uuid import UUID
 from src.interfaces.schemas import (
     PostCreateRequest, 
     PostResponse, 
     CommentCreateRequest, 
     CommentResponse,
     PostDetailResponse,
-    UploadIntentRequest,
-    UploadIntentResponse
+    PostStatusUpdateRequest
 )
 from src.infrastructure.database import get_db, get_storage
 from src.infrastructure.models import PostModel, CommentModel, UserModel
@@ -27,6 +22,8 @@ from typing import List
 router = APIRouter(prefix="/posts", tags=["Kanban Posts B2B"])
 
 # --- WORKFLOW E PERFORMANCE ---
+MAX_UPLOAD_SIZE = 500 * 1024 * 1024
+
 @router.post("/upload", response_model=PostResponse, status_code=201)
 async def upload_media_local(
     calendar_id: str = Form(...),
@@ -35,10 +32,9 @@ async def upload_media_local(
     storage: StorageRepository = Depends(get_storage),
     current_user: UserModel = Depends(get_current_user)
 ):
-    """
-    Substituição do S3: Delega a stream pesada para a camada de Domínio/Infraestrutura.
-    Isolamento total da regra de persistência física.
-    """
+    if file.size and file.size > MAX_UPLOAD_SIZE:
+        raise HTTPException(status_code=413, detail="Arquivo excede o limite de 500MB")
+
     upload_use_case = UploadMediaUseCase(storage)
     media_url = await upload_use_case.execute(file.file, file.filename)
         
@@ -121,7 +117,7 @@ async def add_comment(
 @router.patch("/{post_id}/status", response_model=PostResponse, status_code=200)
 async def update_post_status(
     post_id: UUID,
-    request: __import__('src.interfaces.schemas', fromlist=['PostStatusUpdateRequest']).PostStatusUpdateRequest,
+    request: PostStatusUpdateRequest,
     db: AsyncSession = Depends(get_db),
     current_user: UserModel = Depends(get_current_user)
 ):

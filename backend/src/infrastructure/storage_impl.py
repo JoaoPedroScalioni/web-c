@@ -22,11 +22,13 @@ class MinioStorageRepository(StorageRepository):
             aws_secret_access_key=self.secret_key
         )
         
-        # Verifica se o bucket existe, se não, cria
         try:
             self.client.head_bucket(Bucket=self.bucket_name)
-        except Exception:
-            self.client.create_bucket(Bucket=self.bucket_name)
+        except botocore.exceptions.ClientError as e:
+            if e.response["Error"]["Code"] == "404":
+                self.client.create_bucket(Bucket=self.bucket_name)
+            else:
+                raise
 
     def save_file(self, file_stream, filename: str) -> str:
         ext = os.path.splitext(filename)[1]

@@ -50,9 +50,8 @@ async def db_session(test_engine):
 
     yield session
 
-    # Fazemos sempre o rollback após o teste: TDD Puro (Sandboxing)
-    await session.close()
     await trans.rollback()
+    await session.close()
     await connection.close()
 
 @pytest.fixture

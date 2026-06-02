@@ -24,6 +24,14 @@ app = FastAPI(
     version="1.0.0"
 )
 
+@app.on_event("startup")
+async def startup():
+    logger.info("Elevva B2B API iniciada com sucesso")
+
+@app.on_event("shutdown")
+async def shutdown():
+    logger.info("Elevva B2B API encerrando recursos")
+
 # Defina as origens permitidas (Blindagem B2B)
 origins_str = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000,http://localhost:3001,http://127.0.0.1:3001")
 origins = [o.strip() for o in origins_str.split(",") if o.strip()]
