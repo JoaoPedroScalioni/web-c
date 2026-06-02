@@ -2,7 +2,7 @@ from enum import Enum # Opções fixas de estado e papéis
 from datetime import datetime 
 from pydantic import BaseModel, Field # Pydantic: O coração da validação
 from uuid import UUID 
-from typing import Optional
+from typing import Optional, List
 
 class UserRole(Enum):
     AGENCY = "AGENCY"

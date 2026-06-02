@@ -1,0 +1,48 @@
+services:
+  - type: web
+    name: elevva-api
+    runtime: image
+    repo: https://github.com/JoaoPedroScalioni/web-c
+    dockerfilePath: ./Dockerfile.prod
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: elevva-db
+          property: connectionString
+      - key: JWT_SECRET_KEY
+        sync: false
+      - key: ALGORITHM
+        value: HS256
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: "1440"
+      - key: AWS_ACCESS_KEY_ID
+        sync: false
+      - key: AWS_SECRET_ACCESS_KEY
+        sync: false
+      - key: AWS_REGION
+        value: sa-east-1
+      - key: S3_BUCKET_NAME
+        sync: false
+      - key: TIMEZONE
+        value: America/Sao_Paulo
+      - key: CORS_ORIGINS
+        value: https://elevva-web.onrender.com,https://app.elevva.com
+      - key: LOG_LEVEL
+        value: WARNING
+
+  - type: web
+    name: elevva-web
+    runtime: image
+    repo: https://github.com/JoaoPedroScalioni/web-c
+    dockerfilePath: ./frontend/Dockerfile.prod
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        value: https://elevva-api.onrender.com/api
+      - key: NODE_ENV
+        value: production
+
+databases:
+  - name: elevva-db
+    databaseName: elevva
+    user: elevva_prod_admin
+    plan: free

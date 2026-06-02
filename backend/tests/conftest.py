@@ -8,8 +8,9 @@ from src.infrastructure.models import Base
 from src.infrastructure.database import get_db
 from src.interfaces.main import app
 
-# URL do banco de teste isolado (criado agora para segurança)
-TEST_DATABASE_URL = "postgresql+asyncpg://elevva_su:elevva_secure_password@db:5432/elevva_test"
+# URL do banco de teste isolado (configurável via env para CI)
+import os
+TEST_DATABASE_URL = os.getenv("TEST_DATABASE_URL", "postgresql+asyncpg://elevva_su:elevva_secure_password@db:5432/elevva_test")
 
 @pytest.fixture(scope="session")
 def event_loop():

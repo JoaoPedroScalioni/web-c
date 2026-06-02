@@ -15,3 +15,4 @@ pytest-cov # Plugin do Pytest para gerar os relatórios de cobertura de testes (
 httpx # Cliente HTTP assíncrono usado para fazer requisições nos testes de integração.
 pytest-asyncio # Permite que o Pytest execute testes que usam 'async' e 'await'.
 pytz # Gerenciador de fusos horários, usado para travar o sistema no horário de Brasília.
+gunicorn # Servidor WSGI usado em produção com Uvicorn workers para alta performance.
