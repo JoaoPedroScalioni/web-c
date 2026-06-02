@@ -1,25 +1,45 @@
 import os
-import shutil
+import boto3
+import botocore.exceptions
 from uuid import uuid4
 from src.domain.repositories import StorageRepository
+from fastapi import HTTPException
 
-class LocalFileSystemStorageRepository(StorageRepository):
+class MinioStorageRepository(StorageRepository):
     """
-    Implementação concreta do contrato de Storage usando o disco local.
-    Salva os dados em blocos (chunks) usando shutil para evitar sobrecarga de RAM.
+    Implementação concreta do contrato de Storage usando o MinIO (S3 API).
     """
-    def __init__(self, upload_dir: str = "uploads", base_url: str = "http://localhost:8000/media/"):
-        self.upload_dir = upload_dir
-        self.base_url = base_url
-        os.makedirs(self.upload_dir, exist_ok=True)
+    def __init__(self):
+        self.endpoint = os.getenv("MINIO_ENDPOINT", "http://localhost:9000")
+        self.access_key = os.getenv("MINIO_ACCESS_KEY", "minioadmin")
+        self.secret_key = os.getenv("MINIO_SECRET_KEY", "minioadminpassword")
+        self.bucket_name = os.getenv("MINIO_BUCKET_NAME", "elevva-midias")
+        
+        self.client = boto3.client(
+            "s3",
+            endpoint_url=self.endpoint,
+            aws_access_key_id=self.access_key,
+            aws_secret_access_key=self.secret_key
+        )
+        
+        # Verifica se o bucket existe, se não, cria
+        try:
+            self.client.head_bucket(Bucket=self.bucket_name)
+        except Exception:
+            self.client.create_bucket(Bucket=self.bucket_name)
 
     def save_file(self, file_stream, filename: str) -> str:
         ext = os.path.splitext(filename)[1]
         safe_filename = f"{uuid4().hex}{ext}"
-        file_path = os.path.join(self.upload_dir, safe_filename)
         
-        # Salva no disco local em chunks assíncronos geridos pelo FastAPI
-        with open(file_path, "wb") as buffer:
-            shutil.copyfileobj(file_stream, buffer)
-            
-        return f"{self.base_url}{safe_filename}"
+        try:
+            self.client.upload_fileobj(
+                file_stream,
+                self.bucket_name,
+                safe_filename
+            )
+        except botocore.exceptions.ClientError as e:
+            raise HTTPException(status_code=502, detail=f"Falha de rede ao enviar mídia para o storage: {e}")
+        
+        # Força o link de retorno para o frontend usar localhost
+        return f"http://localhost:9000/elevva-midias/{safe_filename}"

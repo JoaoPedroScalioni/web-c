@@ -96,7 +96,7 @@ export default function KanbanPage() {
           <div className="w-full lg:w-auto flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
             <Link href="/dashboard" className="flex items-center justify-center gap-2 px-6 py-3 bg-zinc-100 hover:bg-zinc-200 text-[#0C0A3E] rounded-xl font-bold transition-all border border-zinc-200 shadow-sm">
               <FolderOpen size={18} />
-              Galeria B2B
+              Meu Dashboard
             </Link>
             <div className="w-full sm:w-auto">
               <UploadManager 

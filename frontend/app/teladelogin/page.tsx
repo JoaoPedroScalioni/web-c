@@ -2,22 +2,42 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2 } from "lucide-react";
+import { Loader2, UserPlus, LogIn } from "lucide-react";
 
 export default function LoginPage() {
-  // Credenciais iniciais para a apresentação (joao@elevva.com - AGENCY ou mayane@cliente.com - CLIENT)
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [name, setName] = useState("");
   const [email, setEmail] = useState("joao@elevva.com");
   const [password, setPassword] = useState("elevva2026");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [successMsg, setSuccessMsg] = useState("");
   const router = useRouter();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError("");
+    setSuccessMsg("");
 
     try {
+      if (isSignUp) {
+        // Fluxo de Cadastro
+        const signupRes = await fetch("http://localhost:8000/auth/signup", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, email, password }),
+        });
+
+        if (!signupRes.ok) {
+          const errData = await signupRes.json();
+          throw new Error(errData.detail || "Erro ao criar conta.");
+        }
+        
+        setSuccessMsg("Conta criada com sucesso! Entrando...");
+      }
+
+      // Fluxo de Login (Roda sempre, até depois do cadastro para já entrar na conta)
       const formData = new URLSearchParams();
       formData.append("username", email);
       formData.append("password", password);
@@ -34,6 +54,9 @@ export default function LoginPage() {
 
       const data = await response.json();
       localStorage.setItem("access_token", data.access_token);
+      
+      // Sincroniza o token nos Cookies para que o Middleware (Auth Guard) no Edge consiga ler e interceptar as rotas
+      document.cookie = `access_token=${data.access_token}; path=/; max-age=86400; SameSite=Strict`;
       
       // Decodifica a Role do token JWT de forma segura
       try {
@@ -62,11 +85,31 @@ export default function LoginPage() {
       </div>
 
       <div className="w-full max-w-md bg-white p-10 rounded-3xl shadow-xl border border-zinc-200 relative z-10 mx-4">
-        <div className="text-center mb-10">
+        <div className="text-center mb-8">
           <h1 className="text-3xl font-extrabold tracking-tight flex items-center justify-center gap-2 mb-2">
             <span className="text-[#0C0A3E]">ELEVVA</span>
           </h1>
-          <p className="text-zinc-500 font-medium">Acesso Restrito - Equipe B2B</p>
+          <p className="text-zinc-500 font-medium">
+            {isSignUp ? "Cadastro de Novo Cliente" : "Acesso Restrito - Equipe B2B"}
+          </p>
+        </div>
+
+        {/* Toggle Sign In / Sign Up */}
+        <div className="flex bg-zinc-100 p-1 rounded-xl mb-8">
+          <button 
+            type="button"
+            onClick={() => { setIsSignUp(false); setError(""); setSuccessMsg(""); }}
+            className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all flex items-center justify-center gap-2 ${!isSignUp ? "bg-white text-[#0C0A3E] shadow-sm" : "text-zinc-500 hover:text-zinc-700"}`}
+          >
+            <LogIn size={16} /> Entrar
+          </button>
+          <button 
+            type="button"
+            onClick={() => { setIsSignUp(true); setError(""); setSuccessMsg(""); setEmail(""); setPassword(""); }}
+            className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all flex items-center justify-center gap-2 ${isSignUp ? "bg-white text-[#0C0A3E] shadow-sm" : "text-zinc-500 hover:text-zinc-700"}`}
+          >
+            <UserPlus size={16} /> Criar Conta
+          </button>
         </div>
 
         {error && (
@@ -74,15 +117,42 @@ export default function LoginPage() {
             {error}
           </div>
         )}
+        
+        {successMsg && (
+          <div className="mb-6 p-4 bg-emerald-50 text-emerald-600 rounded-xl text-sm font-medium border border-emerald-100 text-center animate-in fade-in zoom-in duration-300">
+            {successMsg}
+          </div>
+        )}
 
-        <form onSubmit={handleLogin} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-5">
+          {isSignUp && (
+            <div className="space-y-2 text-left animate-in slide-in-from-top-4 duration-300">
+              <label className="text-sm font-bold text-[#0C0A3E]">Nome Completo</label>
+              <input 
+                type="text" 
+                required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                className="w-full p-4 bg-zinc-50 border border-zinc-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0C0A3E]/20 focus:border-[#0C0A3E] transition-all font-medium text-zinc-800"
+                placeholder="Seu nome da empresa"
+              />
+            </div>
+          )}
+
           <div className="space-y-2 text-left">
             <label className="text-sm font-bold text-[#0C0A3E]">E-mail Corporativo</label>
             <input 
               type="email" 
               required
               value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              onChange={(e) => {
+                const val = e.target.value;
+                setEmail(val);
+                if (!isSignUp) {
+                  if (val === "mayane@cliente.com") setPassword("cliente123");
+                  if (val === "joao@elevva.com") setPassword("elevva2026");
+                }
+              }}
               className="w-full p-4 bg-zinc-50 border border-zinc-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0C0A3E]/20 focus:border-[#0C0A3E] transition-all font-medium text-zinc-800"
               placeholder="seu.nome@elevva.com"
             />
@@ -91,7 +161,9 @@ export default function LoginPage() {
           <div className="space-y-2 text-left">
             <div className="flex justify-between items-center">
               <label className="text-sm font-bold text-[#0C0A3E]">Senha</label>
-              <a href="#" className="text-xs text-zinc-400 hover:text-[#0C0A3E] font-medium transition-colors">Esqueceu?</a>
+              {!isSignUp && (
+                <a href="#" className="text-xs text-zinc-400 hover:text-[#0C0A3E] font-medium transition-colors">Esqueceu?</a>
+              )}
             </div>
             <input 
               type="password" 
@@ -106,9 +178,9 @@ export default function LoginPage() {
           <button 
             type="submit" 
             disabled={isLoading}
-            className="w-full py-4 mt-4 bg-[#0C0A3E] hover:bg-[#1a1766] text-white rounded-xl font-bold transition-all flex items-center justify-center gap-2 shadow-[0_8px_20px_-6px_rgba(12,10,62,0.5)] transform hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
+            className="w-full py-4 mt-6 bg-[#0C0A3E] hover:bg-[#1a1766] text-white rounded-xl font-bold transition-all flex items-center justify-center gap-2 shadow-[0_8px_20px_-6px_rgba(12,10,62,0.5)] transform hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98]"
           >
-            {isLoading ? <Loader2 className="animate-spin" size={20} /> : "Acessar Plataforma"}
+            {isLoading ? <Loader2 className="animate-spin" size={20} /> : (isSignUp ? "Finalizar Cadastro" : "Acessar Plataforma")}
           </button>
         </form>
 

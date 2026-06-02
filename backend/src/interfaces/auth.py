@@ -6,11 +6,46 @@ from sqlalchemy.future import select
 from src.infrastructure.database import get_db
 from src.infrastructure.models import UserModel
 from src.infrastructure.security import PasswordHasher, SecurityService
+from src.domain.entities import UserRole
+from src.interfaces.schemas import ClientSignupRequest, ClientSignupResponse
 
 router = APIRouter(prefix="/auth", tags=["Security B2B - Auth Login"])
 
 # Habilta Swagger UI Authorization lock (Botão 'Authorize' mágico)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+
+@router.post("/signup", response_model=ClientSignupResponse, status_code=status.HTTP_201_CREATED)
+async def signup_client(
+    request: ClientSignupRequest,
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Onboarding Self-Service: Cria uma conta nova engessada como CLIENT.
+    """
+    # Verifica se e-mail já existe
+    result = await db.execute(select(UserModel).where(UserModel.email == request.email))
+    if result.scalars().first():
+        raise HTTPException(status_code=400, detail="Este e-mail já está em uso.")
+    
+    hashed_password = PasswordHasher.hash(request.password)
+    
+    new_user = UserModel(
+        name=request.name,
+        email=request.email,
+        password_hash=hashed_password,
+        role=UserRole.CLIENT
+    )
+    
+    db.add(new_user)
+    await db.commit()
+    await db.refresh(new_user)
+    
+    return ClientSignupResponse(
+        id=new_user.id,
+        name=new_user.name,
+        email=new_user.email,
+        role=new_user.role.value
+    )
 
 @router.post("/login")
 async def login_for_access_token(

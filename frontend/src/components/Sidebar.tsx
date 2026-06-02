@@ -1,11 +1,18 @@
 "use client";
 
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { LayoutDashboard, FileVideo, Settings, LogOut } from "lucide-react";
 import Link from "next/link";
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+
+  const handleLogout = () => {
+    localStorage.removeItem("access_token");
+    document.cookie = "access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
+    router.push("/teladelogin");
+  };
 
   // Rotas públicas ou externas que NÃO devem ter o menu lateral B2B
   if (
@@ -39,7 +46,7 @@ export default function Sidebar() {
       </nav>
 
       <div className="p-6 border-t border-white/10">
-        <button className="flex items-center gap-3 px-4 py-3 w-full rounded-xl text-zinc-400 hover:text-red-400 hover:bg-white/5 transition-colors text-sm font-bold">
+        <button onClick={handleLogout} className="flex items-center gap-3 px-4 py-3 w-full rounded-xl text-zinc-400 hover:text-red-400 hover:bg-white/5 transition-colors text-sm font-bold">
           <LogOut size={20} />
           Sair do Sistema
         </button>

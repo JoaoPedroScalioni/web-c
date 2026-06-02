@@ -4,6 +4,20 @@ from src.domain.entities import PostStatus
 from typing import Optional, List
 
 # ===============================================
+# Auth Schemas
+# ===============================================
+class ClientSignupRequest(BaseModel):
+    name: str = Field(..., description="Nome do novo cliente", min_length=2)
+    email: str = Field(..., description="E-mail corporativo do cliente", pattern=r"^[\w\.-]+@[\w\.-]+\.\w+$")
+    password: str = Field(..., description="Senha escolhida pelo cliente", min_length=6)
+
+class ClientSignupResponse(BaseModel):
+    id: UUID
+    name: str
+    email: str
+    role: str
+
+# ===============================================
 # Kanban Posts Schemas
 # ===============================================
 class PostCreateRequest(BaseModel):

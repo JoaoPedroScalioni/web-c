@@ -11,7 +11,7 @@ class MockPostRepository implements IPostRepository {
   public getAllPending = vi.fn();
 }
 
-describe("Integration: ApprovePostUseCase", () => {
+describe("Unit: ApprovePostUseCase", () => {
   it("Deve integrar o Domínio e a Infraestrutura para aprovar um Post", async () => {
     const mockRepo = new MockPostRepository();
     

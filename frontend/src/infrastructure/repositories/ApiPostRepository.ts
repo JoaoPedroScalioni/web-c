@@ -4,7 +4,7 @@ import { TicketStatus } from "../../domain/value_objects/TicketStatus";
 import { HttpClient } from "../http/HttpClient";
 
 export class ApiPostRepository implements IPostRepository {
-  constructor(private readonly httpClient: HttpClient) {}
+  constructor(private readonly httpClient: HttpClient) { }
 
   public async getById(id: string): Promise<Post | null> {
     const { data } = await this.httpClient.get<any>(`/posts/${id}`);

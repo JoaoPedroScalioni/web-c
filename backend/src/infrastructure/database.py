@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker 
 from sqlalchemy.orm import DeclarativeBase 
 from src.infrastructure.config import settings 
-from src.infrastructure.storage_impl import LocalFileSystemStorageRepository
+from src.infrastructure.storage_impl import MinioStorageRepository
 
 # --- PERFORMANCE E ESCALA ---
 
@@ -23,7 +23,7 @@ async def get_db():
 
 def get_storage():
     """
-    Adaptador Concreto: Aqui injetamos a implementação real do FileSystem Local.
+    Adaptador Concreto: Aqui injetamos a implementação real do MinIO (S3 Compatible).
     O sistema permanece leve pois o storage é externo e desacoplado.
     """
-    return LocalFileSystemStorageRepository()
+    return MinioStorageRepository()
