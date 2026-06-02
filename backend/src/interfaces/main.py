@@ -10,7 +10,8 @@ import logging
 import os
 
 # Configuração de Logs para auditoria técnica B2B
-logging.basicConfig(level=logging.INFO)
+log_level = os.getenv("LOG_LEVEL", "WARNING").upper()
+logging.basicConfig(level=getattr(logging, log_level, logging.WARNING))
 logger = logging.getLogger(__name__)
 
 # Garante que a pasta de uploads local existe no disco
@@ -24,12 +25,8 @@ app = FastAPI(
 )
 
 # Defina as origens permitidas (Blindagem B2B)
-origins = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "http://localhost:3001",
-    "http://127.0.0.1:3001",
-]
+origins_str = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000,http://localhost:3001,http://127.0.0.1:3001")
+origins = [o.strip() for o in origins_str.split(",") if o.strip()]
 
 # Governança de CORS para permitir restrito acesso do Next.js
 app.add_middleware(

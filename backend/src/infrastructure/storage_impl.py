@@ -11,8 +11,8 @@ class MinioStorageRepository(StorageRepository):
     """
     def __init__(self):
         self.endpoint = os.getenv("MINIO_ENDPOINT", "http://localhost:9000")
-        self.access_key = os.getenv("MINIO_ACCESS_KEY", "minioadmin")
-        self.secret_key = os.getenv("MINIO_SECRET_KEY", "minioadminpassword")
+        self.access_key = os.environ.get("MINIO_ACCESS_KEY") or os.environ.get("MINIO_ROOT_USER") or "minioadmin"
+        self.secret_key = os.environ.get("MINIO_SECRET_KEY") or os.environ.get("MINIO_ROOT_PASSWORD") or "minioadminpassword"
         self.bucket_name = os.getenv("MINIO_BUCKET_NAME", "elevva-midias")
         
         self.client = boto3.client(
@@ -41,5 +41,5 @@ class MinioStorageRepository(StorageRepository):
         except botocore.exceptions.ClientError as e:
             raise HTTPException(status_code=502, detail=f"Falha de rede ao enviar mídia para o storage: {e}")
         
-        # Força o link de retorno para o frontend usar localhost
-        return f"http://localhost:9000/elevva-midias/{safe_filename}"
+        public_url = os.getenv("MINIO_PUBLIC_URL", f"{self.endpoint}/{self.bucket_name}")
+        return f"{public_url}/{safe_filename}"

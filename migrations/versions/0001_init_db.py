@@ -30,6 +30,7 @@ def upgrade():
         sa.Column('email', sa.String(), nullable=False),
         sa.Column('password_hash', sa.String(), nullable=False),
         sa.Column('role', user_role_enum, nullable=False),
+        sa.Column('created_at', sa.DateTime(), nullable=True),
     )
     op.create_index('ix_users_email', 'users', ['email'], unique=True)
 
@@ -46,6 +47,7 @@ def upgrade():
         sa.Column('calendar_id', postgresql.UUID(as_uuid=True), sa.ForeignKey('calendars.id')),
         sa.Column('media_url', sa.String(), nullable=False),
         sa.Column('status', post_status_enum, nullable=False),
+        sa.Column('created_at', sa.DateTime(), nullable=True),
     )
 
     op.create_table(
@@ -65,6 +67,7 @@ def upgrade():
         sa.Column('content', sa.String(), nullable=True),
         sa.Column('coord_x', sa.Float(), nullable=True),
         sa.Column('coord_y', sa.Float(), nullable=True),
+        sa.Column('created_at', sa.DateTime(), nullable=True),
     )
 
 

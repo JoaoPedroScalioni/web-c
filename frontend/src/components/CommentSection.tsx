@@ -16,7 +16,7 @@ interface CommentSectionProps {
 
 export default function CommentSection({ postId, existingComments, theme = "light", readOnly = false }: CommentSectionProps) {
   const [commentText, setCommentText] = useState("");
-  const [userId, setUserId] = useState("00000000-0000-0000-0000-000000000001");
+  const [userId, setUserId] = useState("");
   const addCommentMutation = useAddComment();
 
   useEffect(() => {
@@ -28,8 +28,8 @@ export default function CommentSection({ postId, existingComments, theme = "ligh
           setUserId(payload.sub);
         }
       }
-    } catch (e) {
-      console.error("Erro ao ler token", e);
+    } catch {
+      // silent
     }
   }, []);
 

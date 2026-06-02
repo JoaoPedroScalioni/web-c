@@ -32,7 +32,8 @@ async def upload_media_local(
     calendar_id: str = Form(...),
     file: UploadFile = File(...),
     db: AsyncSession = Depends(get_db),
-    storage: StorageRepository = Depends(get_storage)
+    storage: StorageRepository = Depends(get_storage),
+    current_user: UserModel = Depends(get_current_user)
 ):
     """
     Substituição do S3: Delega a stream pesada para a camada de Domínio/Infraestrutura.
@@ -74,7 +75,7 @@ async def create_post(
     return new_post
 
 @router.get("", response_model=List[PostDetailResponse])
-async def list_posts(db: AsyncSession = Depends(get_db)):
+async def list_posts(db: AsyncSession = Depends(get_db), current_user: UserModel = Depends(get_current_user)):
     """
     Retorna a lista de compras (Galeria B2B) com todos os posts e seus status.
     """
@@ -83,7 +84,7 @@ async def list_posts(db: AsyncSession = Depends(get_db)):
     return await use_case.execute()
 
 @router.get("/{post_id}", response_model=PostDetailResponse, responses={404: {"description": "Post não localizado"}})
-async def get_post(post_id: UUID, db: AsyncSession = Depends(get_db)):
+async def get_post(post_id: UUID, db: AsyncSession = Depends(get_db), current_user: UserModel = Depends(get_current_user)):
     """
     Inversão de Dependência: o controlador delega a lógica para o Caso de Uso.
     """
@@ -97,7 +98,8 @@ async def get_post(post_id: UUID, db: AsyncSession = Depends(get_db)):
 async def add_comment(
     post_id: UUID, 
     request: CommentCreateRequest, 
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: UserModel = Depends(get_current_user)
 ):
     """
     Rota para adicionar comentários à mídia. 
@@ -120,7 +122,8 @@ async def add_comment(
 async def update_post_status(
     post_id: UUID,
     request: __import__('src.interfaces.schemas', fromlist=['PostStatusUpdateRequest']).PostStatusUpdateRequest,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: UserModel = Depends(get_current_user)
 ):
     """
     Magic Link Approval: Atualiza o status do Post (ex: APROVADO, REJEITADO) de forma pública/anônima.
@@ -135,7 +138,7 @@ async def update_post_status(
     return updated_post
 
 @router.delete("/{post_id}", status_code=204)
-async def delete_post(post_id: UUID, db: AsyncSession = Depends(get_db)):
+async def delete_post(post_id: UUID, db: AsyncSession = Depends(get_db), current_user: UserModel = Depends(get_current_user)):
     """
     Remove uma publicação permanentemente do sistema (Lixeira).
     """

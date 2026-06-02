@@ -59,7 +59,8 @@ export default function UploadManager({ calendarId, onUploadSuccess }: UploadMan
     formData.append("file", file);
 
     const xhr = new XMLHttpRequest();
-    xhr.open("POST", "http://localhost:8000/posts/upload", true);
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+    xhr.open("POST", `${apiUrl}/posts/upload`, true);
 
     xhr.upload.onprogress = (event) => {
       if (event.lengthComputable) {

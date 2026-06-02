@@ -11,8 +11,8 @@ export const useApprovePost = () => {
       // Invalida cache e re-renderiza componentes atrelados
       queryClient.invalidateQueries({ queryKey: ["pendingPosts"] });
     },
-    onError: (error) => {
-      console.error("Falha ao invocar UseCase de aprovação:", error);
+    onError: () => {
+      // silent
     }
   });
 };
