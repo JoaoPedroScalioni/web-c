@@ -10,10 +10,25 @@ on:
       - main
 
 jobs:
-  test:
-    name: Test and Verify
+  test-backend:
+    name: Test Backend
     runs-on: ubuntu-latest
     
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: user
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: elevva_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     defaults:
       run:
         working-directory: backend
@@ -21,6 +36,7 @@ jobs:
     env:
       PYTHONPATH: src
       ENV: test
+      DATABASE_URL: postgresql+asyncpg://user:password@localhost:5432/elevva_test
 
     steps:
       - name: Checkout repository
@@ -48,12 +64,43 @@ jobs:
       - name: Type checking with mypy
         run: uv run mypy .
 
+      - name: Run migrations
+        run: uv run alembic upgrade head
+
       - name: Run tests
         run: uv run pytest
 
+  test-frontend:
+    name: Test Frontend
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Linter
+        run: npm run lint
+
+      - name: Run Tests
+        run: npm run test:run
+
   docker:
-    name: Build and Push Docker Image
-    needs: test
+    name: Build and Push Docker Images
+    needs: [test-backend, test-frontend]
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
 
@@ -64,17 +111,24 @@ jobs:
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build and push
+      - name: Build and push API
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ./Dockerfile
+          file: ./Dockerfile.prod
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/backend:latest
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/elevva-api:latest
 
+      - name: Build and push Web
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          file: ./frontend/Dockerfile.prod
+          push: true
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/elevva-web:latest
