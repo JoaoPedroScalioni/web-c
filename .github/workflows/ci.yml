@@ -1,11 +1,11 @@
-name: CI/CD Pipeline (Fast-Track Deploy)
+name: CI/CD Pipeline (Backend Only)
 
 on:
   push:
     branches: [ "main" ]
 
 jobs:
-  build-and-push:
+  build-and-push-backend:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -24,13 +24,3 @@ jobs:
           file: ./Dockerfile.prod
           push: true
           tags: ${{ secrets.DOCKER_HUB_USERNAME }}/elevva-api:latest
-
-      - name: Build and push Web
-        uses: docker/build-push-action@v5
-        with:
-          context: ./frontend
-          file: ./frontend/Dockerfile.prod
-          push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/elevva-web:latest
-
-
