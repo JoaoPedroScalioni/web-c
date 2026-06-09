@@ -17,7 +17,7 @@ from src.interfaces.auth import get_current_user
 from src.application.use_cases import GetPostDetailUseCase, AddCommentUseCase, UpdatePostStatusUseCase, GetAllPostsUseCase, DeletePostUseCase, UploadMediaUseCase
 from src.infrastructure.repositories_impl import SQLAlchemyPostRepository
 from src.infrastructure.utils.time_service import TimeService
-from typing import List
+from typing import List, Any
 
 router = APIRouter(prefix="/posts", tags=["Kanban Posts B2B"])
 
@@ -31,7 +31,7 @@ async def upload_media_local(
     db: AsyncSession = Depends(get_db),
     storage: StorageRepository = Depends(get_storage),
     current_user: UserModel = Depends(get_current_user)
-):
+) -> PostModel:
     if file.size and file.size > MAX_UPLOAD_SIZE:
         raise HTTPException(status_code=413, detail="Arquivo excede o limite de 500MB")
 
@@ -56,7 +56,7 @@ async def create_post(
     request: PostCreateRequest, 
     db: AsyncSession = Depends(get_db),
     current_user: UserModel = Depends(get_current_user) # <--- SEGURANÇA JWT
-):
+) -> PostModel:
     """
     Segurança Stateless via JWT: apenas usuários autenticados criam posts
     """
@@ -71,7 +71,7 @@ async def create_post(
     return new_post
 
 @router.get("", response_model=List[PostDetailResponse])
-async def list_posts(db: AsyncSession = Depends(get_db), current_user: UserModel = Depends(get_current_user)):
+async def list_posts(db: AsyncSession = Depends(get_db), current_user: UserModel = Depends(get_current_user)) -> list:
     """
     Retorna a lista de compras (Galeria B2B) com todos os posts e seus status.
     """
@@ -80,7 +80,7 @@ async def list_posts(db: AsyncSession = Depends(get_db), current_user: UserModel
     return await use_case.execute()
 
 @router.get("/{post_id}", response_model=PostDetailResponse, responses={404: {"description": "Post não localizado"}})
-async def get_post(post_id: UUID, db: AsyncSession = Depends(get_db), current_user: UserModel = Depends(get_current_user)):
+async def get_post(post_id: UUID, db: AsyncSession = Depends(get_db), current_user: UserModel = Depends(get_current_user)) -> Any:
     """
     Inversão de Dependência: o controlador delega a lógica para o Caso de Uso.
     """
@@ -96,7 +96,7 @@ async def add_comment(
     request: CommentCreateRequest, 
     db: AsyncSession = Depends(get_db),
     current_user: UserModel = Depends(get_current_user)
-):
+) -> Any:
     """
     Rota para adicionar comentários à mídia. 
     A validação estrutural é garantida pelo Pydantic antes de chegar ao Caso de Uso.
@@ -120,7 +120,7 @@ async def update_post_status(
     request: PostStatusUpdateRequest,
     db: AsyncSession = Depends(get_db),
     current_user: UserModel = Depends(get_current_user)
-):
+) -> Any:
     """
     Magic Link Approval: Atualiza o status do Post (ex: APROVADO, REJEITADO) de forma pública/anônima.
     """
@@ -134,7 +134,7 @@ async def update_post_status(
     return updated_post
 
 @router.delete("/{post_id}", status_code=204)
-async def delete_post(post_id: UUID, db: AsyncSession = Depends(get_db), current_user: UserModel = Depends(get_current_user)):
+async def delete_post(post_id: UUID, db: AsyncSession = Depends(get_db), current_user: UserModel = Depends(get_current_user)) -> None:
     """
     Remove uma publicação permanentemente do sistema (Lixeira).
     """
