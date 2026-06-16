@@ -19,8 +19,7 @@ dependencies = [
     "python-jose[cryptography]",
     "python-multipart",
     "pytz",
-    "gunicorn",
-    "slowapi"
+    "gunicorn"
 ]
 
 [project.optional-dependencies]

@@ -9,7 +9,6 @@ import { Check, X, MessageSquareWarning, Link as LinkIcon, CheckCircle2, FolderO
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { v4 as uuidv4 } from "uuid";
-import { motion, AnimatePresence } from "framer-motion";
 
 const BRAND_NAVY = "#0C0A3E";
 
@@ -94,19 +93,16 @@ export default function KanbanPage() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50/50 relative">
-      {/* Elementos de Glassmorphism Premium no Fundo */}
-      <div className="absolute top-0 left-0 w-full h-[500px] bg-gradient-to-br from-blue-100/40 via-purple-50/40 to-transparent pointer-events-none -z-10 blur-3xl"></div>
-
-      <header className="px-6 md:px-12 py-8 mb-10 bg-white/70 backdrop-blur-xl border-b border-zinc-200/50 shadow-sm sticky top-0 z-50 transition-all duration-300">
+    <div className="min-h-screen bg-zinc-50/50">
+      <header className="px-6 md:px-12 py-8 mb-10 bg-white border-b border-zinc-200 shadow-sm relative">
         <div className="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
-          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+          <div>
             <h1 className="text-3xl font-extrabold tracking-tight flex items-center gap-2">
-              <span className="text-[#0C0A3E] bg-clip-text text-transparent bg-gradient-to-r from-[#0C0A3E] to-blue-700">ELEVVA</span>
+              <span className="text-[#0C0A3E]">ELEVVA</span>
               <span className="font-light text-zinc-400 text-2xl">MARKETING</span>
             </h1>
             <p className="text-zinc-500 mt-2 font-medium">Dashboard Gestão de Aprovações B2B</p>
-          </motion.div>
+          </div>
           
           <div className="w-full lg:w-auto flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
             <Link href="/dashboard" className="flex items-center justify-center gap-2 px-6 py-3 bg-zinc-100 hover:bg-zinc-200 text-[#0C0A3E] rounded-xl font-bold transition-all border border-zinc-200 shadow-sm">
@@ -150,21 +146,13 @@ export default function KanbanPage() {
       </div>
 
       <div className="px-6 md:px-12 pb-12 max-w-7xl mx-auto grid grid-cols-1 gap-12">
-        <AnimatePresence mode="popLayout">
-          {displayedPosts.map((post) => (
-            <motion.div 
-              key={post.id} 
-              layout
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, filter: "blur(8px)", transition: { duration: 0.3 } }}
-              className="bg-white/80 backdrop-blur-md rounded-2xl border border-zinc-200/60 shadow-[0_8px_30px_rgb(0,0,0,0.04)] overflow-hidden flex flex-col lg:flex-row transition-all hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)]"
-            >
-              
-              {/* Seção da Mídia com o Canvas Interativo */}
-              <div className="flex-1 p-6 bg-zinc-50/50 border-b lg:border-b-0 lg:border-r border-zinc-200/50 flex flex-col items-center justify-center relative min-h-[400px]">
-                <MediaViewer mediaUrl={post.media_url} />
-              </div>
+        {displayedPosts.map((post) => (
+          <div key={post.id} className="bg-white rounded-xl border border-zinc-200 shadow-sm overflow-hidden flex flex-col lg:flex-row transition-all hover:shadow-md">
+            
+            {/* Seção da Mídia com o Canvas Interativo */}
+            <div className="flex-1 p-6 bg-zinc-100/50 border-b lg:border-b-0 lg:border-r border-zinc-200 flex flex-col items-center justify-center relative min-h-[400px]">
+              <MediaViewer mediaUrl={post.media_url} />
+            </div>
 
             {/* Seção de Controles e Decisão */}
             <div className="w-full lg:w-[450px] p-8 flex flex-col bg-white">
@@ -260,19 +248,16 @@ export default function KanbanPage() {
                   </div>
                 )}
               </div>
-            </motion.div>
-          ))}
-        </AnimatePresence>
+            </div>
+          </div>
+        ))}
 
         {displayedPosts.length === 0 && (
-          <motion.div 
-            initial={{ opacity: 0 }} animate={{ opacity: 1 }}
-            className="text-center py-32 bg-white/50 backdrop-blur-sm rounded-2xl border border-dashed border-zinc-300"
-          >
+          <div className="text-center py-32 bg-white rounded-xl border border-dashed border-zinc-300">
             <Check className="mx-auto h-12 w-12 text-zinc-300 mb-4" />
             <h3 className="text-lg font-medium text-zinc-900">Tudo limpo por aqui</h3>
             <p className="mt-1 text-sm text-zinc-500">Nenhum post nesta seção no momento.</p>
-          </motion.div>
+          </div>
         )}
       </div>
     </div>

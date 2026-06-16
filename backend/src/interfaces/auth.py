@@ -1,9 +1,5 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Request
+from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from slowapi import Limiter
-from slowapi.util import get_remote_address
-
-limiter = Limiter(key_func=get_remote_address)
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
@@ -19,10 +15,8 @@ router = APIRouter(prefix="/auth", tags=["Security B2B - Auth Login"])
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
 
 @router.post("/signup", response_model=ClientSignupResponse, status_code=status.HTTP_201_CREATED)
-@limiter.limit("5/minute")
 async def signup_client(
     request: ClientSignupRequest,
-    req: Request,
     db: AsyncSession = Depends(get_db)
 ):
     """
@@ -57,9 +51,7 @@ async def signup_client(
     )
 
 @router.post("/login")
-@limiter.limit("10/minute")
 async def login_for_access_token(
-    req: Request,
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: AsyncSession = Depends(get_db)
 ):

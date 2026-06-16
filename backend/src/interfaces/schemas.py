@@ -9,13 +9,7 @@ from typing import Optional, List
 class ClientSignupRequest(BaseModel):
     name: str = Field(..., description="Nome do novo cliente", min_length=2)
     email: str = Field(..., description="E-mail corporativo do cliente", pattern=r"^[\w\.-]+@[\w\.-]+\.\w+$")
-    password: str = Field(
-        ..., 
-        description="Senha escolhida pelo cliente", 
-        min_length=8, 
-        pattern=r"^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*#?&]{8,}$",
-        json_schema_extra={"example": "Elevva2026"}
-    )
+    password: str = Field(..., description="Senha escolhida pelo cliente", min_length=6)
 
 class ClientSignupResponse(BaseModel):
     id: UUID
