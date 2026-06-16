@@ -10,7 +10,7 @@ from src.interfaces.schemas import (
     PostStatusUpdateRequest
 )
 from src.infrastructure.database import get_db, get_storage
-from src.infrastructure.models import PostModel, CommentModel, UserModel
+from src.infrastructure.models import PostModel, CommentModel, UserModel, CalendarModel
 from src.domain.repositories import StorageRepository
 from src.domain.entities import PostStatus
 from src.interfaces.auth import get_current_user
@@ -42,6 +42,22 @@ async def upload_media_local(
     upload_use_case = UploadMediaUseCase(storage)
     media_url = await upload_use_case.execute(file.file, file.filename)
         
+    # AUTO-SEED: Garante que o calendário base do frontend exista na Neon
+    from uuid import UUID
+    try:
+        cal_uuid = UUID(calendar_id)
+        calendar = await db.get(CalendarModel, cal_uuid)
+        if not calendar:
+            new_calendar = CalendarModel(
+                id=cal_uuid,
+                client_id=current_user.id,
+                month="Aprovação B2B Elevva"
+            )
+            db.add(new_calendar)
+            await db.commit()
+    except Exception:
+        pass # Ignora se o ID for inválido
+
     # Salvar no Banco
     new_post = PostModel(
         calendar_id=calendar_id,
