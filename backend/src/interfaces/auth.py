@@ -29,11 +29,14 @@ async def signup_client(
     
     hashed_password = PasswordHasher.hash(request.password)
     
+    # Domain-based Role Assignment: Se for e-mail da agência, vira Admin
+    assigned_role = UserRole.AGENCY if request.email.endswith("@elevva.com") else UserRole.CLIENT
+    
     new_user = UserModel(
         name=request.name,
         email=request.email,
         password_hash=hashed_password,
-        role=UserRole.CLIENT
+        role=assigned_role
     )
     
     db.add(new_user)
