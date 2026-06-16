@@ -21,6 +21,11 @@ class PostRepository(ABC):
         pass
 
     @abstractmethod
+    async def get_calendar_owner_id(self, calendar_id: UUID) -> UUID | None:
+        """Retorna o ID do cliente dono do calendário, ou None se não existir."""
+        pass
+
+    @abstractmethod
     async def save_comment(self, comment: CommentEntity) -> CommentEntity:
         pass
 

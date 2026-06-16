@@ -32,11 +32,9 @@ async def startup():
 async def shutdown():
     logger.info("Elevva B2B API encerrando recursos")
 
-origins = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-    "https://web-c-kappa.vercel.app"  # Apenas as origens EXATAS são permitidas quando allow_credentials=True
-]
+from src.infrastructure.config import settings
+
+origins = [origin.strip() for origin in settings.CORS_ORIGINS.split(",")]
 
 app.add_middleware(
     CORSMiddleware,

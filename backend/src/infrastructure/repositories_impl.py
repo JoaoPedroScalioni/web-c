@@ -26,6 +26,13 @@ class SQLAlchemyPostRepository(PostRepository):
             return None
         return PostEntity.model_validate(post_model, from_attributes=True)
 
+    async def get_calendar_owner_id(self, calendar_id: UUID) -> UUID | None:
+        from src.infrastructure.models import CalendarModel
+        query = await self.session.execute(
+            select(CalendarModel.client_id).filter(CalendarModel.id == calendar_id)
+        )
+        return query.scalars().first()
+
     async def get_all(self) -> list[PostEntity]:
         query = await self.session.execute(
             select(PostModel)

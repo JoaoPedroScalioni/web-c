@@ -44,10 +44,19 @@ class DeletePostUseCase:
     def __init__(self, repo: PostRepository):
         self.repo = repo
 
-    async def execute(self, post_id: UUID) -> None:
+    async def execute(self, post_id: UUID, current_user_id: UUID, current_user_role: str) -> None:
         post = await self.repo.get_by_id(post_id)
         if not post:
             raise PostNotFoundError(str(post_id))
+            
+        from src.domain.entities import UserRole
+        from src.domain.exceptions import UnauthorizedDomainError
+        
+        if current_user_role != UserRole.AGENCY.value:
+            owner_id = await self.repo.get_calendar_owner_id(post.calendar_id)
+            if owner_id != current_user_id:
+                raise UnauthorizedDomainError("Acesso negado. Você não é o dono desta postagem.")
+                
         await self.repo.delete(post_id)
 
 class UpdatePostStatusUseCase:
@@ -55,10 +64,18 @@ class UpdatePostStatusUseCase:
     def __init__(self, post_repo: PostRepository):
         self.post_repo = post_repo
 
-    async def execute(self, post_id: UUID, new_status: str) -> bool:
+    async def execute(self, post_id: UUID, new_status: str, current_user_id: UUID, current_user_role: str) -> bool:
         post = await self.post_repo.get_by_id(post_id)
         if not post:
             raise PostNotFoundError(str(post_id))
+            
+        from src.domain.entities import UserRole
+        from src.domain.exceptions import UnauthorizedDomainError
+        
+        if current_user_role != UserRole.AGENCY.value:
+            owner_id = await self.post_repo.get_calendar_owner_id(post.calendar_id)
+            if owner_id != current_user_id:
+                raise UnauthorizedDomainError("Acesso negado. Você não é o dono desta postagem.")
         
         from src.domain.entities import PostStatus
         

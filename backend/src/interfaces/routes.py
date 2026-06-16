@@ -39,6 +39,21 @@ async def upload_media_local(
     if file.size and file.size > MAX_UPLOAD_SIZE:
         raise HTTPException(status_code=413, detail="Arquivo excede o limite de 500MB")
 
+    # Validação rigorosa de extensões e tipos de arquivo
+    ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "mp4", "mov", "webm"}
+    ALLOWED_MIMETYPES = {
+        "image/png", "image/jpeg", "image/gif", 
+        "video/mp4", "video/quicktime", "video/webm"
+    }
+
+    file_ext = file.filename.split(".")[-1].lower() if file.filename and "." in file.filename else ""
+    
+    if file_ext not in ALLOWED_EXTENSIONS or file.content_type not in ALLOWED_MIMETYPES:
+        raise HTTPException(
+            status_code=400, 
+            detail=f"Formato de arquivo inválido. Permitidos: {', '.join(ALLOWED_EXTENSIONS)}"
+        )
+
     upload_use_case = UploadMediaUseCase(storage)
     media_url = await upload_use_case.execute(file.file, file.filename)
         
@@ -147,7 +162,7 @@ async def update_post_status(
     repo = SQLAlchemyPostRepository(db)
     use_case = UpdatePostStatusUseCase(repo)
     
-    await use_case.execute(post_id, request.status)
+    await use_case.execute(post_id, request.status, current_user.id, current_user.role.value)
     
     # Busca atualizado para retornar
     updated_post = await repo.get_by_id(post_id)
@@ -160,4 +175,4 @@ async def delete_post(post_id: UUID, db: AsyncSession = Depends(get_db), current
     """
     repo = SQLAlchemyPostRepository(db)
     use_case = DeletePostUseCase(repo)
-    await use_case.execute(post_id)
+    await use_case.execute(post_id, current_user.id, current_user.role.value)
