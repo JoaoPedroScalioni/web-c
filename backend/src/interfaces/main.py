@@ -35,13 +35,12 @@ async def shutdown():
 origins = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
-    "https://web-c-kappa.vercel.app",  # <-- O link do seu Frontend na Vercel!
-    "*",                               # <-- Chave mestra: libera qualquer origem para a apresentação não dar chabu
+    "https://web-c-kappa.vercel.app"  # Apenas as origens EXATAS são permitidas quando allow_credentials=True
 ]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # Libera geral na nuvem para evitar travas de subdomínios da Vercel
+    allow_origins=origins, # Passar a lista exata aqui
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
