@@ -7,8 +7,8 @@ import { Loader2, UserPlus, LogIn } from "lucide-react";
 export default function LoginPage() {
   const [isSignUp, setIsSignUp] = useState(false);
   const [name, setName] = useState("");
-  const [email, setEmail] = useState("joao@elevva.com");
-  const [password, setPassword] = useState("elevva2026");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
@@ -146,14 +146,7 @@ export default function LoginPage() {
               type="email" 
               required
               value={email}
-              onChange={(e) => {
-                const val = e.target.value;
-                setEmail(val);
-                if (!isSignUp) {
-                  if (val === "mayane@cliente.com") setPassword("cliente123");
-                  if (val === "joao@elevva.com") setPassword("elevva2026");
-                }
-              }}
+              onChange={(e) => setEmail(e.target.value)}
               className="w-full p-4 bg-zinc-50 border border-zinc-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0C0A3E]/20 focus:border-[#0C0A3E] transition-all font-medium text-zinc-800"
               placeholder="seu.nome@elevva.com"
             />
