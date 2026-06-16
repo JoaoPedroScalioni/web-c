@@ -6,8 +6,9 @@ import MediaViewer from "../../src/components/MediaViewer";
 import CommentSection from "../../src/components/CommentSection";
 import UploadManager from "../../src/components/UploadManager";
 import { Check, X, MessageSquareWarning, Link as LinkIcon, CheckCircle2, FolderOpen, Loader2, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
+import { v4 as uuidv4 } from "uuid";
 
 const BRAND_NAVY = "#0C0A3E";
 
@@ -19,6 +20,16 @@ export default function KanbanPage() {
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [actingPostId, setActingPostId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"kanban" | "postados">("kanban");
+  const [calendarId, setCalendarId] = useState<string>("");
+
+  useEffect(() => {
+    let stored = localStorage.getItem("elevva_calendar_id");
+    if (!stored) {
+      stored = uuidv4();
+      localStorage.setItem("elevva_calendar_id", stored);
+    }
+    setCalendarId(stored);
+  }, []);
 
   const revisaoPosts = pendingPosts?.filter(p => p.status !== "POSTADO") || [];
   const postadosPosts = pendingPosts?.filter(p => p.status === "POSTADO") || [];
@@ -99,10 +110,12 @@ export default function KanbanPage() {
               Meu Dashboard
             </Link>
             <div className="w-full sm:w-auto">
-              <UploadManager 
-                calendarId="123e4567-e89b-12d3-a456-426614174000" // Mockado para Demo
-                onUploadSuccess={() => queryClient.invalidateQueries({ queryKey: ["pendingPosts"] })}
-              />
+              {calendarId && (
+                <UploadManager 
+                  calendarId={calendarId}
+                  onUploadSuccess={() => queryClient.invalidateQueries({ queryKey: ["pendingPosts"] })}
+                />
+              )}
             </div>
           </div>
         </div>
