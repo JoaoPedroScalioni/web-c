@@ -1,5 +1,6 @@
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker 
 from sqlalchemy.orm import DeclarativeBase 
+from sqlalchemy.pool import NullPool
 from src.infrastructure.config import settings 
 from src.infrastructure.storage_impl import MinioStorageRepository
 
@@ -10,8 +11,7 @@ from src.infrastructure.storage_impl import MinioStorageRepository
 engine = create_async_engine(
     settings.DATABASE_URL, 
     echo=False,
-    pool_pre_ping=True,  # <-- Força o SQLAlchemy a testar a conexão antes de usar
-    pool_recycle=300     # <-- Descarte conexões com mais de 5 minutos para evitar surpresas
+    poolclass=NullPool,  # <-- Mata o problema de conexões ociosas presas no pool em produção
 )
 
 # O expire_on_commit=False é crucial para performance assíncrona,
