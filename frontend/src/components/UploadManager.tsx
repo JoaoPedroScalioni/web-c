@@ -62,6 +62,12 @@ export default function UploadManager({ calendarId, onUploadSuccess }: UploadMan
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
     xhr.open("POST", `${apiUrl}/posts/upload`, true);
 
+    // INJETANDO O TOKEN JWT PARA PASSAR NA SEGURANÇA B2B
+    const token = localStorage.getItem("access_token");
+    if (token) {
+      xhr.setRequestHeader("Authorization", `Bearer ${token}`);
+    }
+
     xhr.upload.onprogress = (event) => {
       if (event.lengthComputable) {
         const percentCompleted = Math.round((event.loaded * 100) / event.total);
