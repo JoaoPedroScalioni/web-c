@@ -24,6 +24,10 @@ router = APIRouter(prefix="/posts", tags=["Kanban Posts B2B"])
 # --- WORKFLOW E PERFORMANCE ---
 MAX_UPLOAD_SIZE = 500 * 1024 * 1024
 
+@router.options("/upload")
+async def options_upload():
+    return {"message": "Preflight OK"}
+
 @router.post("/upload", response_model=PostResponse, status_code=201)
 async def upload_media_local(
     calendar_id: str = Form(...),
