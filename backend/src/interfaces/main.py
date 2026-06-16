@@ -8,6 +8,10 @@ from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 import logging
 import os
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
+from slowapi.middleware import SlowAPIMiddleware
 
 # Configuração de Logs para auditoria técnica B2B
 log_level = os.getenv("LOG_LEVEL", "WARNING").upper()
@@ -17,12 +21,17 @@ logger = logging.getLogger(__name__)
 # Garante que a pasta de uploads local existe no disco
 os.makedirs("uploads", exist_ok=True)
 
-# O coração do ciclo de vida da Aplicação B2B
 app = FastAPI(
     title="Elevva Marketing App - API B2B",
     description="Motor de aprovação Kanban e visual pins com Bypass AWS S3",
     version="1.0.0"
 )
+
+# Configuração Rate Limiting
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+app.add_middleware(SlowAPIMiddleware)
 
 @app.on_event("startup")
 async def startup():
