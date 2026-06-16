@@ -32,15 +32,17 @@ async def startup():
 async def shutdown():
     logger.info("Elevva B2B API encerrando recursos")
 
-# Defina as origens permitidas (Blindagem B2B)
-origins_str = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://127.0.0.1:3000,http://localhost:3001,http://127.0.0.1:3001")
-origins = [o.strip() for o in origins_str.split(",") if o.strip()]
+origins = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+    "https://web-c-kappa.vercel.app",  # <-- O link do seu Frontend na Vercel!
+    "*",                               # <-- Chave mestra: libera qualquer origem para a apresentação não dar chabu
+]
 
-# Governança de CORS para permitir restrito acesso do Next.js
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True, # Permitir tokens/cookies de autenticação
+    allow_origins=["*"], # Libera geral na nuvem para evitar travas de subdomínios da Vercel
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
