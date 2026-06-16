@@ -45,3 +45,25 @@ class MinioStorageRepository(StorageRepository):
         
         public_url = os.getenv("MINIO_PUBLIC_URL", f"{self.endpoint}/{self.bucket_name}")
         return f"{public_url}/{safe_filename}"
+
+class LocalStorageRepository(StorageRepository):
+    """
+    Bypass AWS S3: Armazena arquivos localmente no diretório 'uploads'.
+    """
+    def __init__(self):
+        self.upload_dir = "uploads"
+        os.makedirs(self.upload_dir, exist_ok=True)
+        # O backend vai montar /media para ler dessa pasta (configurado no main.py)
+        # Na Vercel/Frontend, o src da imagem vai ser https://elevva-apicerto.onrender.com/media/arquivo.mp4
+        self.base_url = os.getenv("PUBLIC_API_URL", "https://elevva-apicerto.onrender.com")
+
+    def save_file(self, file_stream, filename: str) -> str:
+        import shutil
+        ext = os.path.splitext(filename)[1]
+        safe_filename = f"{uuid4().hex}{ext}"
+        file_path = os.path.join(self.upload_dir, safe_filename)
+        
+        with open(file_path, "wb") as buffer:
+            shutil.copyfileobj(file_stream, buffer)
+            
+        return f"{self.base_url}/media/{safe_filename}"
