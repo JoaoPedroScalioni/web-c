@@ -7,7 +7,12 @@ from src.infrastructure.storage_impl import MinioStorageRepository
 
 # Aqui está o motor do sistema. O create_async_engine garante que
 # o banco de dados nunca bloqueie as threads do servidor FastAPI.
-engine = create_async_engine(settings.DATABASE_URL, echo=False)
+engine = create_async_engine(
+    settings.DATABASE_URL, 
+    echo=False,
+    pool_pre_ping=True,  # <-- Força o SQLAlchemy a testar a conexão antes de usar
+    pool_recycle=300     # <-- Descarte conexões com mais de 5 minutos para evitar surpresas
+)
 
 # O expire_on_commit=False é crucial para performance assíncrona,
 # permitindo acessar objetos após o commit sem novas viagens ao banco.
