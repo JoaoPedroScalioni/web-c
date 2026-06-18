@@ -2,6 +2,7 @@ from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sess
 from sqlalchemy.orm import DeclarativeBase 
 from src.infrastructure.config import settings
 from src.infrastructure.storage_impl import MinioStorageRepository, LocalStorageRepository
+from functools import lru_cache
 import os
 
 # --- PERFORMANCE E ESCALA ---
@@ -30,12 +31,16 @@ async def get_db():
     async with AsyncSessionLocal() as session:
         yield session
 
-def get_storage():
+@lru_cache(maxsize=2)
+def _get_storage_instance():
     """
-    Adaptador Concreto: Usa disco local por padrão (bypass AWS S3).
-    Para usar MinIO/S3, configure STORAGE_BACKEND=minio.
+    Singleton cacheado: cria o repositório de storage uma única vez.
+    Evita criar boto3 client e head_bucket em todo request de upload.
     """
     storage_backend = os.getenv("STORAGE_BACKEND", "local").lower()
     if storage_backend == "minio":
         return MinioStorageRepository()
     return LocalStorageRepository()
+
+def get_storage():
+    return _get_storage_instance()

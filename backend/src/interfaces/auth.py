@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from collections import defaultdict
 
 from src.infrastructure.database import get_db
@@ -67,7 +67,7 @@ async def login_for_access_token(
     Retorna o Payload JWT estrito para o Next.js colocar em LocalStorage/Cookies.
     """
     client_ip = form_data.username  # simplificado; em produção use request.client.host
-    now = datetime.utcnow()
+    now = datetime.now(timezone.utc)
     _login_attempts[client_ip] = [t for t in _login_attempts[client_ip] if t > now - timedelta(minutes=LOGIN_WINDOW_MINUTES)]
     if len(_login_attempts[client_ip]) >= MAX_LOGIN_ATTEMPTS:
         raise HTTPException(
