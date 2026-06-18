@@ -33,5 +33,5 @@ export function middleware(request: NextRequest) {
 
 export const config = {
   // Interceptar apenas as rotas protegidas especificadas
-  matcher: ['/dashboard/:path*', '/kanban/:path*', '/configuracoes/:path*']
+  matcher: ['/dashboard/:path*', '/kanban/:path*', '/configuracoes/:path*', '/admin/:path*']
 };

@@ -21,6 +21,17 @@ class PostStatus(Enum):
     REJEITADO = "REJEITADO"
     POSTADO = "POSTADO"
 
+    def can_transition_to(self, new_status: "PostStatus") -> bool:
+        transitions = {
+            PostStatus.PENDING_UPLOAD: [PostStatus.CRIADO],
+            PostStatus.CRIADO: [PostStatus.AGUARDANDO_APROVACAO],
+            PostStatus.AGUARDANDO_APROVACAO: [PostStatus.APROVADO, PostStatus.REJEITADO],
+            PostStatus.APROVADO: [PostStatus.POSTADO],
+            PostStatus.REJEITADO: [PostStatus.AGUARDANDO_APROVACAO],
+            PostStatus.POSTADO: [],
+        }
+        return new_status in transitions.get(self, [])
+
 
 
 class User(BaseModel):

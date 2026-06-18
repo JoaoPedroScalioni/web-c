@@ -2,6 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+from datetime import datetime, timedelta
+from collections import defaultdict
 
 from src.infrastructure.database import get_db
 from src.infrastructure.models import UserModel
@@ -13,6 +15,11 @@ router = APIRouter(prefix="/auth", tags=["Security B2B - Auth Login"])
 
 # Habilta Swagger UI Authorization lock (Botão 'Authorize' mágico)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+
+# Rate limiter simples em memória para proteção contra bruteforce
+_login_attempts: dict[str, list[datetime]] = defaultdict(list)
+MAX_LOGIN_ATTEMPTS = 5
+LOGIN_WINDOW_MINUTES = 15
 
 @router.post("/signup", response_model=ClientSignupResponse, status_code=status.HTTP_201_CREATED)
 async def signup_client(
@@ -59,6 +66,16 @@ async def login_for_access_token(
     Motor de Login B2B (Segurança Camada Zero).
     Retorna o Payload JWT estrito para o Next.js colocar em LocalStorage/Cookies.
     """
+    client_ip = form_data.username  # simplificado; em produção use request.client.host
+    now = datetime.utcnow()
+    _login_attempts[client_ip] = [t for t in _login_attempts[client_ip] if t > now - timedelta(minutes=LOGIN_WINDOW_MINUTES)]
+    if len(_login_attempts[client_ip]) >= MAX_LOGIN_ATTEMPTS:
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="Muitas tentativas de login. Tente novamente em 15 minutos."
+        )
+    _login_attempts[client_ip].append(now)
+
     result = await db.execute(select(UserModel).where(UserModel.email == form_data.username))
     user = result.scalars().first()
     

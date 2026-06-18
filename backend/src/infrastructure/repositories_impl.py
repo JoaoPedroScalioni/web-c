@@ -4,7 +4,7 @@ from sqlalchemy.orm import selectinload # Carregamento otimizado de relacionamen
 from uuid import UUID # Manipulação de identificadores únicos
 from src.domain.repositories import PostRepository
 from src.domain.exceptions import PostNotFoundError
-from src.infrastructure.models import PostModel, CommentModel
+from src.infrastructure.models import PostModel, CommentModel, CalendarModel
 from src.domain.entities import PostEntity, CommentEntity
 
 # [TIRE PRINT DAQUI - SLIDE: INVERSÃO DE DEPENDÊNCIA (IMPLEMENTAÇÃO)]
@@ -27,7 +27,6 @@ class SQLAlchemyPostRepository(PostRepository):
         return PostEntity.model_validate(post_model, from_attributes=True)
 
     async def get_calendar_owner_id(self, calendar_id: UUID) -> UUID | None:
-        from src.infrastructure.models import CalendarModel
         query = await self.session.execute(
             select(CalendarModel.client_id).filter(CalendarModel.id == calendar_id)
         )

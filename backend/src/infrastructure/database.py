@@ -1,8 +1,9 @@
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker 
 from sqlalchemy.orm import DeclarativeBase 
 from sqlalchemy.pool import NullPool
-from src.infrastructure.config import settings 
+from src.infrastructure.config import settings
 from src.infrastructure.storage_impl import MinioStorageRepository, LocalStorageRepository
+import os
 
 # --- PERFORMANCE E ESCALA ---
 
@@ -28,7 +29,10 @@ async def get_db():
 
 def get_storage():
     """
-    Adaptador Concreto: Bypass AWS S3 ativado.
-    Usa o disco local para salvar arquivos e não derrubar a aplicação por falta de credenciais do S3.
+    Adaptador Concreto: Usa disco local por padrão (bypass AWS S3).
+    Para usar MinIO/S3, configure STORAGE_BACKEND=minio.
     """
+    storage_backend = os.getenv("STORAGE_BACKEND", "local").lower()
+    if storage_backend == "minio":
+        return MinioStorageRepository()
     return LocalStorageRepository()

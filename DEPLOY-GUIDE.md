@@ -281,8 +281,8 @@ Acesse no navegador: `https://elevva-web.onrender.com`
    - **Host**: `ep-still-hall-acbrv1yv-pooler.sa-east-1.aws.neon.tech`
    - **Database**: `neondb`
    - **User**: `neondb_owner`
-   - **Password**: `npg_hmO4wxpMR5Ke`
-   - **SSL**: `Require`
+    - **Password**: `your_neon_password`  <!-- 🔴 NUNCA comite a senha real! Use uma env var -->
+    - **SSL**: `Require`
 
 ### 9.5. Docker Hub
 Acesse: https://hub.docker.com/repositories

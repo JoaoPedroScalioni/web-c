@@ -56,6 +56,7 @@ class LocalStorageRepository(StorageRepository):
         # O backend vai montar /media para ler dessa pasta (configurado no main.py)
         # Na Vercel/Frontend, o src da imagem vai ser https://elevva-apicerto.onrender.com/media/arquivo.mp4
         self.base_url = os.getenv("PUBLIC_API_URL", "https://elevva-apicerto.onrender.com")
+        # PUBLIC_API_URL deve ser configurada no Render para o domínio correto
 
     def save_file(self, file_stream, filename: str) -> str:
         import shutil

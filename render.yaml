@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: elevva-api
+    name: elevva-apicerto
     runtime: image
     repo: https://github.com/JoaoPedroScalioni/web-c
     dockerfilePath: ./Dockerfile.prod
@@ -14,7 +14,7 @@ services:
       - key: ALGORITHM
         value: HS256
       - key: ACCESS_TOKEN_EXPIRE_MINUTES
-        value: "1440"
+        value: "43200"
       - key: AWS_ACCESS_KEY_ID
         sync: false
       - key: AWS_SECRET_ACCESS_KEY
@@ -26,9 +26,11 @@ services:
       - key: TIMEZONE
         value: America/Sao_Paulo
       - key: CORS_ORIGINS
-        value: https://elevva-web.onrender.com,https://app.elevva.com
+        value: https://web-c-kappa.vercel.app,https://app.elevva.com
       - key: LOG_LEVEL
         value: WARNING
+      - key: PUBLIC_API_URL
+        value: https://elevva-apicerto.onrender.com
 
   - type: web
     name: elevva-web
@@ -37,7 +39,7 @@ services:
     dockerfilePath: ./frontend/Dockerfile.prod
     envVars:
       - key: NEXT_PUBLIC_API_URL
-        value: https://elevva-api.onrender.com/api
+        value: https://elevva-apicerto.onrender.com
       - key: NODE_ENV
         value: production
 
