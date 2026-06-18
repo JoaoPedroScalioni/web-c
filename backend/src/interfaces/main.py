@@ -2,6 +2,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
+from contextlib import asynccontextmanager
 from src.interfaces.routes import router
 from src.interfaces.auth import router as auth_router
 from src.domain.exceptions import DomainException, PostNotFoundError
@@ -19,19 +20,18 @@ logger = logging.getLogger(__name__)
 # Garante que a pasta de uploads local existe no disco
 os.makedirs("uploads", exist_ok=True)
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    logger.info("Elevva B2B API iniciada com sucesso")
+    yield
+    logger.info("Elevva B2B API encerrando recursos")
+
 app = FastAPI(
     title="Elevva Marketing App - API B2B",
     description="Motor de aprovação Kanban e visual pins com Bypass AWS S3",
-    version="1.0.0"
+    version="1.0.0",
+    lifespan=lifespan
 )
-
-@app.on_event("startup")
-async def startup():
-    logger.info("Elevva B2B API iniciada com sucesso")
-
-@app.on_event("shutdown")
-async def shutdown():
-    logger.info("Elevva B2B API encerrando recursos")
 
 origins = [origin.strip() for origin in settings.CORS_ORIGINS.split(",")]
 
