@@ -54,7 +54,7 @@ async def test_delete_post_not_found():
 async def test_update_post_status():
     mock_repo = AsyncMock()
     post_id = uuid4()
-    mock_post = MagicMock(status=PostStatus.CRIADO, calendar_id=uuid4())
+    mock_post = MagicMock(status=PostStatus.AGUARDANDO_APROVACAO, calendar_id=uuid4())
     mock_repo.get_by_id.return_value = mock_post
     mock_repo.save.return_value = None
     use_case = UpdatePostStatusUseCase(mock_repo)

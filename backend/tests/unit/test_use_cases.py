@@ -35,7 +35,7 @@ async def test_update_status_invalid():
 @pytest.mark.asyncio
 async def test_approve_post_success():
     mock_repo = AsyncMock()
-    mock_post = MagicMock(status=PostStatus.CRIADO, calendar_id=uuid4())
+    mock_post = MagicMock(status=PostStatus.AGUARDANDO_APROVACAO, calendar_id=uuid4())
     mock_repo.get_by_id.return_value = mock_post
     
     use_case = UpdatePostStatusUseCase(mock_repo)
