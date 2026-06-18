@@ -18,8 +18,7 @@ async def test_elevva_full_workflow(client_with_db, db_session):
     )
     db_session.add(user)
     await db_session.commit()
-
-    token = SecurityService.create_access_token(data={"sub": str(user.id), "role": user.role.value})
+    await db_session.refresh(user)
 
     async def override_get_current_user():
         return user
@@ -33,7 +32,6 @@ async def test_elevva_full_workflow(client_with_db, db_session):
             "/posts/upload",
             data={"calendar_id": calendar_id},
             files={"file": ("campanha_abril.mp4", file_content, "video/mp4")},
-            headers={"Authorization": f"Bearer {token}"}
         )
         assert resp.status_code == 201
         post_id = resp.json()["id"]
@@ -48,15 +46,11 @@ async def test_elevva_full_workflow(client_with_db, db_session):
         resp_comment = await ac.post(
             f"/posts/{post_id}/comments",
             json=comment_data,
-            headers={"Authorization": f"Bearer {token}"}
         )
         assert resp_comment.status_code == 201
         assert resp_comment.json()["content"] == "Ajustar contraste no logo"
 
-        resp_detail = await ac.get(
-            f"/posts/{post_id}",
-            headers={"Authorization": f"Bearer {token}"}
-        )
+        resp_detail = await ac.get(f"/posts/{post_id}")
         assert resp_detail.status_code == 200
         data = resp_detail.json()
         assert len(data["comments"]) >= 1
