@@ -26,7 +26,7 @@ class CalendarModel(Base):
 class PostModel(Base):
     __tablename__ = "posts"
     id = Column(PGUUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    calendar_id = Column(PGUUID(as_uuid=True), ForeignKey("calendars.id"))
+    calendar_id = Column(PGUUID(as_uuid=True), ForeignKey("calendars.id"), index=True)
     media_url = Column(String, nullable=False)
     status = Column(Enum(PostStatus), default=PostStatus.CRIADO)
     created_at = Column(DateTime, nullable=True)
@@ -45,8 +45,8 @@ class CommentModel(Base):
     """Anexo Visual suportando a funcionalidade Core de Pin B2B (X,Y)"""
     __tablename__ = "comments"
     id = Column(PGUUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    post_id = Column(PGUUID(as_uuid=True), ForeignKey("posts.id"))
-    user_id = Column(PGUUID(as_uuid=True), ForeignKey("users.id"))
+    post_id = Column(PGUUID(as_uuid=True), ForeignKey("posts.id"), index=True)
+    user_id = Column(PGUUID(as_uuid=True), ForeignKey("users.id"), index=True)
     content = Column(String)
     
     # Restrição Visual no PostgreSQL - Flutuantes

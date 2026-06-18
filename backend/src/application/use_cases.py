@@ -84,7 +84,7 @@ class UpdatePostStatusUseCase:
 
         post.status = status_enum
         await self.post_repo.save(post)
-        return True
+        return post
 
 class UploadMediaUseCase:
     """Caso de uso para processar o upload físico usando a infraestrutura injetada."""

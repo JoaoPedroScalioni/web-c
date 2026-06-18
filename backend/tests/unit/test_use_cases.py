@@ -41,8 +41,8 @@ async def test_approve_post_success():
     use_case = UpdatePostStatusUseCase(mock_repo)
     result = await use_case.execute(uuid4(), "APROVADO", uuid4(), "AGENCY")
     
-    assert mock_post.status == PostStatus.APROVADO
-    assert result is True
+    assert result.status == PostStatus.APROVADO
+    assert result is mock_post
 
 @pytest.mark.asyncio
 async def test_upload_media_success():

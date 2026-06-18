@@ -162,11 +162,7 @@ async def update_post_status(
     repo = SQLAlchemyPostRepository(db)
     use_case = UpdatePostStatusUseCase(repo)
     
-    await use_case.execute(post_id, request.status, current_user.id, current_user.role.value)
-    
-    # Busca atualizado para retornar
-    updated_post = await repo.get_by_id(post_id)
-    return updated_post
+    return await use_case.execute(post_id, request.status, current_user.id, current_user.role.value)
 
 @router.delete("/{post_id}", status_code=204)
 async def delete_post(post_id: UUID, db: AsyncSession = Depends(get_db), current_user: UserModel = Depends(get_current_user)) -> None:
