@@ -1,3 +1,4 @@
+import asyncio
 from uuid import UUID, uuid4
 from src.domain.entities import PostEntity, CommentEntity, PostStatus, UserRole
 from src.domain.repositories import PostRepository, StorageRepository
@@ -27,6 +28,9 @@ class AddCommentUseCase:
         self.time_service = time_service
 
     async def execute(self, post_id: UUID, user_id: UUID, content: str, coord_x: float | None = None, coord_y: float | None = None) -> CommentEntity:
+        post = await self.repo.get_by_id(post_id)
+        if not post:
+            raise PostNotFoundError(str(post_id))
         comment_entity = CommentEntity(
             id=uuid4(),
             post_id=post_id,
@@ -59,14 +63,11 @@ class UpdatePostStatusUseCase:
     def __init__(self, post_repo: PostRepository):
         self.post_repo = post_repo
 
-    async def execute(self, post_id: UUID, new_status: str, current_user_id: UUID, current_user_role: str) -> bool:
+    async def execute(self, post_id: UUID, new_status: str, current_user_id: UUID, current_user_role: str) -> PostEntity:
         post = await self.post_repo.get_by_id(post_id)
         if not post:
             raise PostNotFoundError(str(post_id))
-            
-        from src.domain.entities import UserRole
-        from src.domain.exceptions import UnauthorizedDomainError
-        
+
         if current_user_role != UserRole.AGENCY.value:
             owner_id = await self.post_repo.get_calendar_owner_id(post.calendar_id)
             if owner_id != current_user_id:
@@ -92,5 +93,4 @@ class UploadMediaUseCase:
         self.storage_repo = storage_repo
         
     async def execute(self, file_stream, filename: str) -> str:
-        # A responsabilidade do disco local ou cloud é totalmente isolada da regra de negócio
-        return self.storage_repo.save_file(file_stream, filename)
+        return await asyncio.to_thread(self.storage_repo.save_file, file_stream, filename)

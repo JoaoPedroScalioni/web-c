@@ -5,7 +5,6 @@ from datetime import datetime
 from src.infrastructure.repositories_impl import SQLAlchemyPostRepository
 from src.infrastructure.storage_impl import LocalStorageRepository
 from src.domain.entities import PostEntity, CommentEntity, PostStatus
-from src.domain.exceptions import PostNotFoundError
 
 def _mock_result(first_return):
     scalars = MagicMock()
@@ -51,54 +50,28 @@ async def test_get_by_id_returns_none():
     assert result is None
 
 @pytest.mark.asyncio
-async def test_save_raises_not_found():
-    session = AsyncMock()
-    session.execute.return_value = _mock_result(None)
-
-    repo = SQLAlchemyPostRepository(session)
-    with pytest.raises(PostNotFoundError):
-        await repo.save(MagicMock(id=uuid4()))
-
-@pytest.mark.asyncio
 async def test_save_updates_status():
     session = AsyncMock()
     post_id = uuid4()
-    mock_model = MagicMock()
-    mock_model.id = post_id
-    session.execute.return_value = _mock_result(mock_model)
-
     entity = MagicMock(id=post_id, status=PostStatus.APROVADO)
+
     repo = SQLAlchemyPostRepository(session)
     result = await repo.save(entity)
 
-    assert mock_model.status == PostStatus.APROVADO
+    session.execute.assert_awaited_once()
     session.commit.assert_awaited_once()
     assert result == entity
 
 @pytest.mark.asyncio
-async def test_delete_calls_session_delete():
+async def test_delete_calls_delete():
     session = AsyncMock()
     post_id = uuid4()
-    mock_model = MagicMock()
-    mock_model.id = post_id
-    session.execute.return_value = _mock_result(mock_model)
 
     repo = SQLAlchemyPostRepository(session)
     await repo.delete(post_id)
 
-    session.delete.assert_awaited_once_with(mock_model)
+    session.execute.assert_awaited_once()
     session.commit.assert_awaited_once()
-
-@pytest.mark.asyncio
-async def test_delete_noop_when_not_found():
-    session = AsyncMock()
-    session.execute.return_value = _mock_result(None)
-
-    repo = SQLAlchemyPostRepository(session)
-    await repo.delete(uuid4())
-
-    session.delete.assert_not_called()
-    session.commit.assert_not_called()
 
 @pytest.mark.asyncio
 async def test_get_calendar_owner_id():

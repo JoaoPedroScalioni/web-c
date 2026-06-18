@@ -1,9 +1,9 @@
-from sqlalchemy.ext.asyncio import AsyncSession # Gerenciamento de sessões assíncronas com o PostgreSQL
-from sqlalchemy.future import select # Para realizar queries SQL modernas e rápidas
-from sqlalchemy.orm import selectinload # Carregamento otimizado de relacionamentos
-from uuid import UUID # Manipulação de identificadores únicos
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import update, delete
+from sqlalchemy.future import select
+from sqlalchemy.orm import selectinload
+from uuid import UUID
 from src.domain.repositories import PostRepository
-from src.domain.exceptions import PostNotFoundError
 from src.infrastructure.models import PostModel, CommentModel, CalendarModel
 from src.domain.entities import PostEntity, CommentEntity
 
@@ -42,15 +42,8 @@ class SQLAlchemyPostRepository(PostRepository):
         return [PostEntity.model_validate(p, from_attributes=True) for p in post_models]
 
     async def save(self, post_entity: PostEntity) -> PostEntity:
-        query = await self.session.execute(
-            select(PostModel).filter(PostModel.id == post_entity.id)
-        )
-        post_model = query.scalars().first()
-        
-        if not post_model:
-            raise PostNotFoundError(str(post_entity.id))
-
-        post_model.status = post_entity.status
+        stmt = update(PostModel).where(PostModel.id == post_entity.id).values(status=post_entity.status)
+        await self.session.execute(stmt)
         await self.session.commit()
         return post_entity
 
@@ -70,10 +63,6 @@ class SQLAlchemyPostRepository(PostRepository):
         return CommentEntity.model_validate(new_comment, from_attributes=True)
 
     async def delete(self, post_id: UUID) -> None:
-        query = await self.session.execute(
-            select(PostModel).filter(PostModel.id == post_id)
-        )
-        post_model = query.scalars().first()
-        if post_model:
-            await self.session.delete(post_model)
-            await self.session.commit()
+        stmt = delete(PostModel).where(PostModel.id == post_id)
+        await self.session.execute(stmt)
+        await self.session.commit()

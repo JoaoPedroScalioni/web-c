@@ -14,7 +14,7 @@ interface CommentSectionProps {
   readOnly?: boolean;
 }
 
-export default function CommentSection({ postId, existingComments, theme = "light", readOnly = false }: CommentSectionProps) {
+const CommentSection = React.memo(function CommentSection({ postId, existingComments, theme = "light", readOnly = false }: CommentSectionProps) {
   const [commentText, setCommentText] = useState("");
   const [userId, setUserId] = useState("");
   const addCommentMutation = useAddComment();
@@ -107,4 +107,6 @@ export default function CommentSection({ postId, existingComments, theme = "ligh
       )}
     </div>
   );
-}
+});
+
+export default CommentSection;

@@ -137,9 +137,6 @@ async def add_comment(
     A validação estrutural é garantida pelo Pydantic antes de chegar ao Caso de Uso.
     """
     repo = SQLAlchemyPostRepository(db)
-    use_case_detail = GetPostDetailUseCase(repo)
-    await use_case_detail.execute(post_id) 
-        
     use_case = AddCommentUseCase(repo, TimeService())
     return await use_case.execute(
         post_id=post_id,

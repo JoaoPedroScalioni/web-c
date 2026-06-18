@@ -11,12 +11,13 @@ import os
 # abrir uma nova do zero (que exige TCP + SSL + auth). Isso reduz latência de ~300ms
 # para <5ms por request.
 engine = create_async_engine(
-    settings.DATABASE_URL, 
+    settings.DATABASE_URL,
     echo=False,
-    pool_size=5,
-    max_overflow=5,
+    pool_size=10,
+    max_overflow=10,
     pool_pre_ping=True,
-    pool_recycle=3600,
+    pool_recycle=300,
+    connect_args={"timeout": 10},
 )
 
 # O expire_on_commit=False é crucial para performance assíncrona,

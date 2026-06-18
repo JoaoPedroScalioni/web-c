@@ -15,12 +15,12 @@ class UserModel(Base):
     email = Column(String, unique=True, nullable=False, index=True)
     password_hash = Column(String, nullable=False)
     role = Column(Enum(UserRole), nullable=False)
-    created_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, nullable=True, index=True)
 
 class CalendarModel(Base):
     __tablename__ = "calendars"
     id = Column(PGUUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    client_id = Column(PGUUID(as_uuid=True), ForeignKey("users.id"))
+    client_id = Column(PGUUID(as_uuid=True), ForeignKey("users.id"), index=True)
     month = Column(String)
 
 class PostModel(Base):
@@ -29,9 +29,8 @@ class PostModel(Base):
     calendar_id = Column(PGUUID(as_uuid=True), ForeignKey("calendars.id"), index=True)
     media_url = Column(String, nullable=False)
     status = Column(Enum(PostStatus), default=PostStatus.CRIADO)
-    created_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, nullable=True, index=True)
     
-    # Eager Loading para puxar os Pins Visuais atrelados ao carregar a mídia
     comments = relationship("CommentModel", back_populates="post", cascade="all, delete-orphan")
 
 class IdeaModel(Base):
@@ -52,6 +51,6 @@ class CommentModel(Base):
     # Restrição Visual no PostgreSQL - Flutuantes
     coord_x = Column(Float, nullable=True)
     coord_y = Column(Float, nullable=True)
-    created_at = Column(DateTime, nullable=True)
+    created_at = Column(DateTime, nullable=True, index=True)
     
     post = relationship("PostModel", back_populates="comments")

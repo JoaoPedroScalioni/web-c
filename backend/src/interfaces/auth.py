@@ -34,7 +34,7 @@ async def signup_client(
     if result.scalars().first():
         raise HTTPException(status_code=400, detail="Este e-mail já está em uso.")
     
-    hashed_password = PasswordHasher.hash(request.password)
+    hashed_password = await PasswordHasher.hash(request.password)
     
     # Domain-based Role Assignment: Se for e-mail da agência, vira Admin
     assigned_role = UserRole.AGENCY if request.email.endswith("@elevva.com") else UserRole.CLIENT
@@ -79,7 +79,7 @@ async def login_for_access_token(
     result = await db.execute(select(UserModel).where(UserModel.email == form_data.username))
     user = result.scalars().first()
     
-    if not user or not PasswordHasher.verify(form_data.password, user.password_hash):
+    if not user or not await PasswordHasher.verify(form_data.password, user.password_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Credenciais Incorretas B2B",
@@ -95,7 +95,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: AsyncSession
     Dependency Injection (Middleware). 
     Todas as rotas que usarem "Depends(get_current_user)" estarão blindadas pelo JWT.
     """
-    payload = SecurityService.decode_access_token(token)
+    payload = await SecurityService.decode_access_token(token)
     if not payload:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Assinatura JWT Inválida ou Expirada")
         

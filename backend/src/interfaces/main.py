@@ -2,6 +2,7 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
+from starlette.responses import FileResponse
 from contextlib import asynccontextmanager
 from src.interfaces.routes import router
 from src.interfaces.auth import router as auth_router
@@ -64,8 +65,14 @@ async def domain_exception_handler(request: Request, exc: DomainException):
 app.include_router(auth_router)
 app.include_router(router)
 
-# Servindo arquivos estáticos locais (Custo Zero / Bye S3)
-app.mount("/media", StaticFiles(directory="uploads"), name="media")
+class _CachedStaticFiles(StaticFiles):
+    async def get_response(self, path: str, scope):
+        response = await super().get_response(path, scope)
+        if response.status_code == 200:
+            response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
+        return response
+
+app.mount("/media", _CachedStaticFiles(directory="uploads"), name="media")
 
 @app.get("/health")
 async def health_check():

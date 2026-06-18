@@ -5,24 +5,20 @@ import MediaViewer from "../../../src/components/MediaViewer";
 import CommentSection from "../../../src/components/CommentSection";
 import { Check, X, Link as LinkIcon, AlertCircle, Loader2 } from "lucide-react";
 import Link from "next/link";
-import { useState, useEffect } from "react";
-import { v4 as uuidv4 } from "uuid";
-
+import { useState } from "react";
 export default function ApprovePage({ params }: { params: { id: string } }) {
   const { data: post, isLoading, isError } = usePostDetail(params.id);
   const { mutate: updateStatus, isPending } = useUpdatePostStatus();
   
-  // Cliente (Guest) Session Gerenciamento
-  const [clientId, setClientId] = useState<string>("");
-
-  useEffect(() => {
+  const [clientId] = useState<string>(() => {
+    if (typeof window === "undefined") return "";
     let storedId = localStorage.getItem("elevva_guest_id");
     if (!storedId) {
-      storedId = uuidv4();
+      storedId = crypto.randomUUID();
       localStorage.setItem("elevva_guest_id", storedId);
     }
-    setClientId(storedId);
-  }, []);
+    return storedId;
+  });
 
   if (isLoading) {
     return (

@@ -1,10 +1,11 @@
 "use client";
 
+import React from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { LayoutDashboard, FileVideo, Settings, LogOut } from "lucide-react";
 import Link from "next/link";
 
-export default function Sidebar() {
+const Sidebar = React.memo(function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -53,4 +54,6 @@ export default function Sidebar() {
       </div>
     </aside>
   );
-}
+});
+
+export default Sidebar;

@@ -71,9 +71,10 @@ async def test_login_success(client_with_db, db_session):
     from src.infrastructure.security import PasswordHasher
     from src.infrastructure.models import UserModel
     from src.domain.entities import UserRole
+    pw_hash = await PasswordHasher.hash("senha123")
     user = UserModel(
         id=uuid4(), name="Login Test", email="login@test.com",
-        password_hash=PasswordHasher.hash("senha123"), role=UserRole.CLIENT
+        password_hash=pw_hash, role=UserRole.CLIENT
     )
     db_session.add(user)
     await db_session.commit()
@@ -91,9 +92,10 @@ async def test_login_invalid_credentials(client_with_db, db_session):
     from src.infrastructure.security import PasswordHasher
     from src.infrastructure.models import UserModel
     from src.domain.entities import UserRole
+    pw_hash = await PasswordHasher.hash("senha123")
     user = UserModel(
         id=uuid4(), name="Login Test", email="login@test.com",
-        password_hash=PasswordHasher.hash("senha123"), role=UserRole.CLIENT
+        password_hash=pw_hash, role=UserRole.CLIENT
     )
     db_session.add(user)
     await db_session.commit()

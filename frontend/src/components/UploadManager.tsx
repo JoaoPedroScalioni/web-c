@@ -11,7 +11,7 @@ interface UploadManagerProps {
 const MAX_FILE_SIZE = 500 * 1024 * 1024;
 const ALLOWED_TYPES = ["video/mp4", "video/webm", "image/jpeg", "image/png"];
 
-export default function UploadManager({ calendarId, onUploadSuccess }: UploadManagerProps) {
+const UploadManager = React.memo(function UploadManager({ calendarId, onUploadSuccess }: UploadManagerProps) {
   const [file, setFile] = useState<File | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -199,4 +199,6 @@ export default function UploadManager({ calendarId, onUploadSuccess }: UploadMan
       </div>
     </div>
   );
-}
+});
+
+export default UploadManager;

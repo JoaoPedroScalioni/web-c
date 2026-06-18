@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field, ConfigDict
 from uuid import UUID
+from datetime import datetime
 from src.domain.entities import PostStatus
 from typing import Optional, List
 
@@ -23,6 +24,7 @@ class PostResponse(BaseModel):
     calendar_id: UUID = Field(..., description="UUID do calendário proprietário")
     media_url: str = Field(..., description="URL de acesso à mídia no S3", json_schema_extra={"example": "https://bucket.s3.amazonaws.com/uuid.mp4"})
     status: PostStatus = Field(..., description="Motor de estado restrito (CRIADO, APROVADO, etc)")
+    created_at: Optional[datetime] = Field(None, description="Data de criação do post")
     
     model_config = ConfigDict(from_attributes=True)
 
@@ -39,6 +41,7 @@ class CommentResponse(BaseModel):
     content: str = Field(..., description="Texto do comentário")
     coord_x: Optional[float] = Field(None, description="Coordenada X em %")
     coord_y: Optional[float] = Field(None, description="Coordenada Y em %")
+    created_at: Optional[datetime] = Field(None, description="Data de criação do comentário")
 
     model_config = ConfigDict(from_attributes=True)
 
