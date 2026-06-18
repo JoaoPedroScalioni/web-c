@@ -38,6 +38,10 @@ jobs:
       - name: Run Alembic migrations
         env:
           DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:5432/elevva_test
+          JWT_SECRET_KEY: ci-test-key
+          AWS_ACCESS_KEY_ID: ci-test
+          AWS_SECRET_ACCESS_KEY: ci-test
+          S3_BUCKET_NAME: ci-test
         run: alembic upgrade head
 
       - name: Run tests
