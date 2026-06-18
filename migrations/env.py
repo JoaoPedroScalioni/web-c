@@ -7,12 +7,11 @@ from sqlalchemy import pool
 from alembic import context
 
 # 1. Blindagem de Pathing (Acesso à Clean Architecture)
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'backend', 'src')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'backend')))
 
 # 2. Regra Rigorosa: Importando configurações Pydantic V2 e o Base SQLAlchemy
-from backend.src.infrastructure.config import settings
-from backend.src.infrastructure.models import Base
+from src.infrastructure.config import settings
+from src.infrastructure.models import Base
 
 config = context.config
 
