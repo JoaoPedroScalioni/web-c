@@ -51,6 +51,7 @@ jobs:
           AWS_ACCESS_KEY_ID: test
           AWS_SECRET_ACCESS_KEY: test
           S3_BUCKET_NAME: test
+          PYTHONPATH: backend
         run: pytest backend/tests -v --cov=backend/src
 
   test-frontend:
