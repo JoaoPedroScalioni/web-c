@@ -59,5 +59,5 @@ async def test_update_post_status():
     mock_repo.save.return_value = None
     use_case = UpdatePostStatusUseCase(mock_repo)
     result = await use_case.execute(post_id, "APROVADO", uuid4(), "AGENCY")
-    assert result is True
+    assert result is mock_post
     assert mock_post.status == PostStatus.APROVADO
