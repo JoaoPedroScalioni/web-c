@@ -12,7 +12,7 @@ from src.interfaces.schemas import (
 from src.infrastructure.database import get_db, get_storage
 from src.infrastructure.models import PostModel, CommentModel, UserModel, CalendarModel
 from src.domain.repositories import StorageRepository
-from src.domain.entities import PostStatus
+from src.domain.entities import PostStatus, UserRole
 from src.interfaces.auth import get_current_user
 from src.application.use_cases import GetPostDetailUseCase, AddCommentUseCase, UpdatePostStatusUseCase, GetAllPostsUseCase, DeletePostUseCase, UploadMediaUseCase
 from src.infrastructure.repositories_impl import SQLAlchemyPostRepository
@@ -109,8 +109,11 @@ async def create_post(
 async def list_posts(db: AsyncSession = Depends(get_db), current_user: UserModel = Depends(get_current_user)) -> list:
     """
     Retorna a lista de compras (Galeria B2B) com todos os posts e seus status.
+    Clientes veem apenas seus próprios posts; admins veem todos.
     """
     repo = SQLAlchemyPostRepository(db)
+    if current_user.role == UserRole.CLIENT:
+        return await repo.get_all_by_client(current_user.id)
     use_case = GetAllPostsUseCase(repo)
     return await use_case.execute()
 

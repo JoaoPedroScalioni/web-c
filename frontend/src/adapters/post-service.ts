@@ -8,6 +8,19 @@ type CommentCreateRequest = components["schemas"]["CommentCreateRequest"];
 type CommentResponse = paths["/posts/{post_id}/comments"]["post"]["responses"]["201"]["content"]["application/json"];
 type PostStatusUpdateRequest = components["schemas"]["PostStatusUpdateRequest"];
 
+// --- ADMIN APPROVAL SERVICES ---
+export const fetchPendingAdmins = async (): Promise<{ id: string; name: string; email: string; created_at: string | null }[]> => {
+  return fetchClient("/admin/pending-users");
+};
+
+export const approveAdmin = async (userId: string): Promise<{ message: string }> => {
+  return fetchClient(`/admin/approve-user/${userId}`, { method: "POST" });
+};
+
+export const rejectAdmin = async (userId: string): Promise<{ message: string }> => {
+  return fetchClient(`/admin/reject-user/${userId}`, { method: "POST" });
+};
+
 // --- SERVICES (Usando o Base Client) ---
 export const fetchPostDetail = async (postId: string): Promise<PostDetailResponse> => {
   return fetchClient<PostDetailResponse>(`/posts/${postId}`);

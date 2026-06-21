@@ -41,6 +41,17 @@ class SQLAlchemyPostRepository(PostRepository):
         post_models = query.scalars().all()
         return [PostEntity.model_validate(p, from_attributes=True) for p in post_models]
 
+    async def get_all_by_client(self, client_id: UUID) -> list[PostEntity]:
+        query = await self.session.execute(
+            select(PostModel)
+            .join(CalendarModel, PostModel.calendar_id == CalendarModel.id)
+            .options(selectinload(PostModel.comments))
+            .filter(CalendarModel.client_id == client_id)
+            .order_by(PostModel.created_at.desc())
+        )
+        post_models = query.scalars().all()
+        return [PostEntity.model_validate(p, from_attributes=True) for p in post_models]
+
     async def save(self, post_entity: PostEntity) -> PostEntity:
         stmt = update(PostModel).where(PostModel.id == post_entity.id).values(status=post_entity.status)
         await self.session.execute(stmt)

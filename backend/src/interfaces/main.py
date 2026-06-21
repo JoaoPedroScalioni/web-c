@@ -6,6 +6,7 @@ from starlette.responses import FileResponse
 from contextlib import asynccontextmanager
 from src.interfaces.routes import router
 from src.interfaces.auth import router as auth_router
+from src.interfaces.admin import router as admin_router
 from src.domain.exceptions import DomainException, PostNotFoundError
 from src.infrastructure.config import settings
 from src.infrastructure.database import AsyncSessionLocal
@@ -64,6 +65,7 @@ async def domain_exception_handler(request: Request, exc: DomainException):
 # Injeção dos Roteadores Clean Architecture Elevva
 app.include_router(auth_router)
 app.include_router(router)
+app.include_router(admin_router)
 
 class _CachedStaticFiles(StaticFiles):
     async def get_response(self, path: str, scope):

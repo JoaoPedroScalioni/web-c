@@ -3,7 +3,7 @@ from sqlalchemy.dialects.postgresql import UUID as PGUUID
 from sqlalchemy.orm import declarative_base, relationship
 from sqlalchemy.ext.asyncio import AsyncAttrs
 import uuid
-from src.domain.entities import UserRole, PostStatus
+from src.domain.entities import UserRole, PostStatus, UserStatus
 
 # Clean Architecture: Herança obrigatória da classe AsyncAttrs para compatibilidade Async/Await do FastAPI
 Base = declarative_base(cls=AsyncAttrs)
@@ -15,6 +15,7 @@ class UserModel(Base):
     email = Column(String, unique=True, nullable=False, index=True)
     password_hash = Column(String, nullable=False)
     role = Column(Enum(UserRole), nullable=False)
+    status = Column(Enum(UserStatus), nullable=False, default=UserStatus.APPROVED)
     created_at = Column(DateTime, nullable=True, index=True)
 
 class CalendarModel(Base):

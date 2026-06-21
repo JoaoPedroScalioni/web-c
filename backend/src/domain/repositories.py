@@ -17,6 +17,11 @@ class PostRepository(ABC):
         pass
 
     @abstractmethod
+    async def get_all_by_client(self, client_id: UUID) -> list[PostEntity]:
+        """Retorna todos os posts vinculados a um cliente específico via calendário."""
+        pass
+
+    @abstractmethod
     async def save(self, post: PostEntity) -> PostEntity:
         pass
 

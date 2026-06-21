@@ -8,6 +8,11 @@ class UserRole(Enum):
     AGENCY = "AGENCY"
     CLIENT = "CLIENT"
 
+class UserStatus(Enum):
+    APPROVED = "APPROVED"
+    PENDING = "PENDING"
+    REJECTED = "REJECTED"
+
 # --- CONTROLE DE ESTADO ---
 class PostStatus(Enum):
     """
@@ -39,7 +44,8 @@ class User(BaseModel):
     name: str 
     email: str 
     password_hash: str # <--- DADO CRIPTOGRAFADO (SEGURANÇA)
-    role: UserRole 
+    role: UserRole
+    status: UserStatus = UserStatus.APPROVED
 
 class CommentEntity(BaseModel):
     """

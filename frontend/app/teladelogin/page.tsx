@@ -23,7 +23,6 @@ export default function LoginPage() {
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
       if (isSignUp) {
-        // Fluxo de Cadastro
         const signupRes = await fetch(`${apiUrl}/auth/signup`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -33,6 +32,15 @@ export default function LoginPage() {
         if (!signupRes.ok) {
           const errData = await signupRes.json();
           throw new Error(errData.detail || "Erro ao criar conta.");
+        }
+
+        const signupData = await signupRes.json();
+        
+        if (signupData.role === "AGENCY") {
+          setSuccessMsg("Conta de administrador criada! Um administrador existente precisa aprovar seu cadastro antes de fazer login.");
+          setIsLoading(false);
+          setIsSignUp(false);
+          return;
         }
         
         setSuccessMsg("Conta criada com sucesso! Entrando...");
@@ -50,7 +58,9 @@ export default function LoginPage() {
       });
 
       if (!response.ok) {
-        throw new Error("Credenciais inválidas. Verifique seu e-mail corporativo ou senha.");
+        const errData = await response.json().catch(() => ({}));
+        const detail = errData.detail || "Credenciais invalidas. Verifique seu e-mail corporativo ou senha.";
+        throw new Error(detail);
       }
 
       const data = await response.json();

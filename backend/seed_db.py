@@ -3,7 +3,7 @@ from sqlalchemy import delete
 from src.infrastructure.security import PasswordHasher
 from src.infrastructure.database import AsyncSessionLocal
 from src.infrastructure.models import UserModel, PostModel, CalendarModel, CommentModel
-from src.domain.entities import UserRole, PostStatus
+from src.domain.entities import UserRole, PostStatus, UserStatus
 from src.infrastructure.utils.time_service import TimeService
 
 from src.infrastructure.models import Base
@@ -25,6 +25,7 @@ async def seed():
             email='joao@elevva.com',
             password_hash=PasswordHasher.hash('elevva2026'),
             role=UserRole.AGENCY,
+            status=UserStatus.APPROVED,
             created_at=TimeService.get_now()
         )
         client = UserModel(
@@ -32,6 +33,7 @@ async def seed():
             email='mayane@cliente.com',
             password_hash=PasswordHasher.hash('cliente123'),
             role=UserRole.CLIENT,
+            status=UserStatus.APPROVED,
             created_at=TimeService.get_now()
         )
         db.add_all([agency, client])
@@ -122,6 +124,7 @@ async def seed():
         print("\n" + "="*50)
         print("✅ SEEDING CONCLUÍDO COM SUCESSO!")
         print(f"📧 Login Agency: joao@elevva.com / elevva2026")
+        print(f"📧 Login Admin (aprovado): joao_admin@elevva.com / joao123")
         print(f"📧 Login Client: mayane@cliente.com / cliente123")
         print("="*50)
 

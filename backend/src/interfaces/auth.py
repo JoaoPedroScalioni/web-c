@@ -8,7 +8,7 @@ from collections import defaultdict
 from src.infrastructure.database import get_db
 from src.infrastructure.models import UserModel
 from src.infrastructure.security import PasswordHasher, SecurityService
-from src.domain.entities import UserRole
+from src.domain.entities import UserRole, UserStatus
 from src.interfaces.schemas import ClientSignupRequest, ClientSignupResponse
 
 router = APIRouter(prefix="/auth", tags=["Security B2B - Auth Login"])
@@ -39,11 +39,15 @@ async def signup_client(
     # Domain-based Role Assignment: Se for e-mail da agência, vira Admin
     assigned_role = UserRole.AGENCY if request.email.endswith("@elevva.com") else UserRole.CLIENT
     
+    # Admin precisa ser aprovado por outro admin; clientes são aprovados automaticamente
+    assigned_status = UserStatus.PENDING if assigned_role == UserRole.AGENCY else UserStatus.APPROVED
+    
     new_user = UserModel(
         name=request.name,
         email=request.email,
         password_hash=hashed_password,
-        role=assigned_role
+        role=assigned_role,
+        status=assigned_status
     )
     
     db.add(new_user)
@@ -84,6 +88,19 @@ async def login_for_access_token(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Credenciais Incorretas B2B",
             headers={"WWW-Authenticate": "Bearer"},
+        )
+    
+    # Admin pendente não pode fazer login até ser aprovado
+    if user.role == UserRole.AGENCY and user.status == UserStatus.PENDING:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Sua conta de administrador ainda não foi aprovada. Aguarde a aprovação de um administrador existente."
+        )
+    
+    if user.role == UserRole.AGENCY and user.status == UserStatus.REJECTED:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Sua solicitação de conta de administrador foi rejeitada."
         )
         
     access_token = SecurityService.create_access_token(data={"sub": str(user.id), "role": user.role.value})

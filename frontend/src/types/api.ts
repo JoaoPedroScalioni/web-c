@@ -324,7 +324,7 @@ export interface components {
          *     O sistema é uma máquina de estados que protege o fluxo do post.
          * @enum {string}
          */
-        PostStatus: "PENDING_UPLOAD" | "CRIADO" | "AGUARDANDO_APROVACAO" | "APROVADO" | "REJEITADO";
+        PostStatus: "PENDING_UPLOAD" | "CRIADO" | "AGUARDANDO_APROVACAO" | "APROVADO" | "REJEITADO" | "POSTADO";
         /** PostStatusUpdateRequest */
         PostStatusUpdateRequest: {
             /**
