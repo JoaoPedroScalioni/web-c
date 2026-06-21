@@ -73,12 +73,12 @@ export default function LoginPage() {
       try {
         const payload = JSON.parse(atob(data.access_token.split('.')[1]));
         if (payload.role === "AGENCY") {
-          router.push("/admin");
+          window.location.href = "/admin";
         } else {
-          router.push("/kanban");
+          window.location.href = "/kanban";
         }
       } catch (e) {
-        router.push("/kanban");
+        window.location.href = "/kanban";
       }
     } catch (err: any) {
       setError(err.message);

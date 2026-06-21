@@ -12,7 +12,7 @@ const Sidebar = React.memo(function Sidebar() {
   const handleLogout = () => {
     localStorage.removeItem("access_token");
     document.cookie = "access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
-    router.push("/teladelogin");
+    window.location.href = "/teladelogin";
   };
 
   // Rotas públicas ou externas que NÃO devem ter o menu lateral B2B
