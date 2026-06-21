@@ -17,7 +17,7 @@ from src.interfaces.auth import get_current_user
 from src.application.use_cases import GetPostDetailUseCase, AddCommentUseCase, UpdatePostStatusUseCase, GetAllPostsUseCase, DeletePostUseCase, UploadMediaUseCase
 from src.infrastructure.repositories_impl import SQLAlchemyPostRepository
 from src.infrastructure.utils.time_service import TimeService
-from typing import List, Any
+from typing import List, Any, Optional
 
 router = APIRouter(prefix="/posts", tags=["Kanban Posts B2B"])
 
@@ -123,7 +123,11 @@ async def create_post(
     return new_post
 
 @router.get("", response_model=List[PostDetailResponse])
-async def list_posts(db: AsyncSession = Depends(get_db), current_user: UserModel = Depends(get_current_user)) -> list:
+async def list_posts(
+    client_id: Optional[UUID] = None,
+    db: AsyncSession = Depends(get_db), 
+    current_user: UserModel = Depends(get_current_user)
+) -> list:
     """
     Retorna a lista de compras (Galeria B2B) com todos os posts e seus status.
     Clientes veem apenas seus próprios posts; admins veem todos.
@@ -131,6 +135,10 @@ async def list_posts(db: AsyncSession = Depends(get_db), current_user: UserModel
     repo = SQLAlchemyPostRepository(db)
     if current_user.role == UserRole.CLIENT:
         return await repo.get_all_by_client(current_user.id)
+    
+    if client_id:
+        return await repo.get_all_by_client(client_id)
+        
     use_case = GetAllPostsUseCase(repo)
     return await use_case.execute()
 

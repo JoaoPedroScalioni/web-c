@@ -77,3 +77,24 @@ async def reject_admin(
     user.status = UserStatus.REJECTED
     await db.commit()
     return {"message": f"Administrador {user.name} rejeitado."}
+
+@router.get("/clients")
+async def list_approved_clients(
+    db: AsyncSession = Depends(get_db),
+    admin: UserModel = Depends(require_approved_admin)
+):
+    result = await db.execute(
+        select(UserModel)
+        .where(UserModel.role == UserRole.CLIENT)
+        .where(UserModel.status == UserStatus.APPROVED)
+        .order_by(UserModel.name)
+    )
+    clients = result.scalars().all()
+    return [
+        {
+            "id": str(c.id),
+            "name": c.name,
+            "email": c.email,
+        }
+        for c in clients
+    ]

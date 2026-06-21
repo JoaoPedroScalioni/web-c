@@ -21,13 +21,18 @@ export const rejectAdmin = async (userId: string): Promise<{ message: string }> 
   return fetchClient(`/admin/reject-user/${userId}`, { method: "POST" });
 };
 
+export const fetchClients = async (): Promise<{ id: string; name: string; email: string; }[]> => {
+  return fetchClient("/admin/clients");
+};
+
 // --- SERVICES (Usando o Base Client) ---
 export const fetchPostDetail = async (postId: string): Promise<PostDetailResponse> => {
   return fetchClient<PostDetailResponse>(`/posts/${postId}`);
 };
 
-export const fetchPendingPosts = async (): Promise<PostDetailResponse[]> => {
-  return fetchClient<PostDetailResponse[]>("/posts");
+export const fetchPendingPosts = async (clientId?: string): Promise<PostDetailResponse[]> => {
+  const query = clientId ? `?client_id=${clientId}` : "";
+  return fetchClient<PostDetailResponse[]>(`/posts${query}`);
 };
 
 export const addCommentToPost = async ({
@@ -70,10 +75,17 @@ export const usePostDetail = (postId: string) => {
   });
 };
 
-export const usePendingPosts = () => {
+export const usePendingPosts = (clientId?: string) => {
   return useQuery<PostDetailResponse[], ApiError>({
-    queryKey: ["pendingPosts"],
-    queryFn: () => fetchPendingPosts(),
+    queryKey: ["pendingPosts", clientId],
+    queryFn: () => fetchPendingPosts(clientId),
+  });
+};
+
+export const useClients = () => {
+  return useQuery<{ id: string; name: string; email: string; }[], ApiError>({
+    queryKey: ["clients"],
+    queryFn: () => fetchClients(),
   });
 };
 

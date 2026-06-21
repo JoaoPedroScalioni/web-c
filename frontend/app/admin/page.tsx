@@ -1,6 +1,6 @@
 "use client";
 
-import { usePendingPosts, useUpdatePostStatus, fetchPendingAdmins, approveAdmin, rejectAdmin } from "../../src/adapters/post-service";
+import { usePendingPosts, useUpdatePostStatus, fetchPendingAdmins, approveAdmin, rejectAdmin, useClients } from "../../src/adapters/post-service";
 import MediaViewer from "../../src/components/MediaViewer";
 import CommentSection from "../../src/components/CommentSection";
 import { Loader2, FolderOpen, CheckCircle2, AlertTriangle, PlayCircle, LogOut, LayoutDashboard, ChevronRight, MessageSquare, AlertCircle, Shield, UserCheck, UserX, Users } from "lucide-react";
@@ -18,7 +18,9 @@ interface PendingAdmin {
 }
 
 export default function AdminPage() {
-  const { data: posts, isLoading, isError } = usePendingPosts();
+  const [selectedClientId, setSelectedClientId] = useState<string>("ALL");
+  const { data: posts, isLoading, isError } = usePendingPosts(selectedClientId === "ALL" ? undefined : selectedClientId);
+  const { data: clients } = useClients();
   const { mutate: updateStatus, isPending: isUpdatingStatus } = useUpdatePostStatus();
   const [selectedPostId, setSelectedPostId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<TabType>("revisao");
@@ -176,6 +178,23 @@ export default function AdminPage() {
                   <span className="text-xs text-zinc-500">midias</span>
                 </div>
               </div>
+            </div>
+          )}
+
+          {/* Client Filter */}
+          {activeTab !== "admins" && clients && clients.length > 0 && (
+            <div className="bg-zinc-900 border border-zinc-800 p-4 rounded-xl shadow-md">
+              <label className="text-xs font-bold text-zinc-400 uppercase tracking-wider mb-2 block">Filtrar por Cliente</label>
+              <select
+                value={selectedClientId}
+                onChange={(e) => setSelectedClientId(e.target.value)}
+                className="w-full bg-zinc-950 border border-zinc-700 rounded-lg p-2 text-sm text-zinc-300 focus:outline-none focus:ring-1 focus:ring-indigo-500 transition-all font-medium"
+              >
+                <option value="ALL">Todos os Clientes</option>
+                {clients.map(client => (
+                  <option key={client.id} value={client.id}>{client.name}</option>
+                ))}
+              </select>
             </div>
           )}
 
