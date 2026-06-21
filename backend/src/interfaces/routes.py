@@ -59,23 +59,40 @@ async def upload_media_local(
         
     # AUTO-SEED: Garante que o calendário base do frontend exista na Neon
     from uuid import UUID
+    from sqlalchemy.future import select
+    
+    cal_uuid = None
     try:
         cal_uuid = UUID(calendar_id)
+    except Exception:
+        pass # Ignora string inválida
+        
+    calendar = None
+    if cal_uuid:
         calendar = await db.get(CalendarModel, cal_uuid)
+        
+    # Proteção B2B: Se o calendário for de outro cliente (bug do frontend) ou não existir
+    if not calendar or calendar.client_id != current_user.id:
+        # Tenta achar o calendário correto do cliente atual
+        query = await db.execute(select(CalendarModel).where(CalendarModel.client_id == current_user.id))
+        calendar = query.scalars().first()
+        
+        # Se não tiver nenhum, cria um
         if not calendar:
-            new_calendar = CalendarModel(
-                id=cal_uuid,
+            calendar = CalendarModel(
                 client_id=current_user.id,
                 month="Aprovação B2B Elevva"
             )
-            db.add(new_calendar)
+            # Reaproveita o UUID se for novo e válido
+            if cal_uuid and not await db.get(CalendarModel, cal_uuid):
+                calendar.id = cal_uuid
+            db.add(calendar)
             await db.commit()
-    except Exception:
-        pass # Ignora se o ID for inválido
+            await db.refresh(calendar)
 
-    # Salvar no Banco
+    # Salvar no Banco com o ID real e seguro
     new_post = PostModel(
-        calendar_id=calendar_id,
+        calendar_id=calendar.id,
         media_url=media_url,
         status=PostStatus.AGUARDANDO_APROVACAO,
         created_at=TimeService.get_now()

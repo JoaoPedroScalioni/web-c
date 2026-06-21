@@ -113,7 +113,7 @@ export default function AdminPage() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("access_token");
+    localStorage.clear();
     document.cookie = "access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;";
     window.location.href = "/teladelogin";
   };
