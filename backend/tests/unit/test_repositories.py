@@ -70,7 +70,7 @@ async def test_delete_calls_delete():
     repo = SQLAlchemyPostRepository(session)
     await repo.delete(post_id)
 
-    session.execute.assert_awaited_once()
+    assert session.execute.await_count == 2
     session.commit.assert_awaited_once()
 
 @pytest.mark.asyncio
