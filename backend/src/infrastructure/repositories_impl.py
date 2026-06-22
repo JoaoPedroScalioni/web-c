@@ -74,6 +74,10 @@ class SQLAlchemyPostRepository(PostRepository):
         return CommentEntity.model_validate(new_comment, from_attributes=True)
 
     async def delete(self, post_id: UUID) -> None:
-        stmt = delete(PostModel).where(PostModel.id == post_id)
-        await self.session.execute(stmt)
+        await self.session.execute(
+            delete(CommentModel).where(CommentModel.post_id == post_id)
+        )
+        await self.session.execute(
+            delete(PostModel).where(PostModel.id == post_id)
+        )
         await self.session.commit()
