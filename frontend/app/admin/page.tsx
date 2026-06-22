@@ -28,6 +28,7 @@ export default function AdminPage() {
   const [adminsLoading, setAdminsLoading] = useState(false);
   const [adminsError, setAdminsError] = useState("");
   const [actingAdminId, setActingAdminId] = useState<string | null>(null);
+  const [updateError, setUpdateError] = useState<string | null>(null);
   const router = useRouter();
 
   const loadPendingAdmins = useCallback(async () => {
@@ -81,11 +82,15 @@ export default function AdminPage() {
   ).length;
 
   const handleUpdateToPosted = (postId: string) => {
+    setUpdateError(null);
     updateStatus({ postId, request: { status: "POSTADO" } }, {
       onSuccess: () => {
         if (activeTab === "revisao" && selectedPostId === postId) {
           setSelectedPostId(null);
         }
+      },
+      onError: (err) => {
+        setUpdateError(err.message || "Erro ao marcar como postado. Tente novamente.");
       }
     });
   };
@@ -407,7 +412,12 @@ export default function AdminPage() {
                       <h3 className="text-lg font-bold text-zinc-100 mb-1">Anotacoes & Feedbacks</h3>
                       <p className="text-zinc-500 text-xs pr-2">Instrucoes deixadas pelo cliente para a edicao.</p>
                     </div>
-                    <div className="shrink-0 pt-0.5">
+                    <div className="shrink-0 pt-0.5 flex flex-col items-end gap-2">
+                      {updateError && (
+                        <div className="text-red-400 text-[10px] font-medium bg-red-500/10 border border-red-500/20 px-2 py-1 rounded-lg text-right max-w-[200px]">
+                          {updateError}
+                        </div>
+                      )}
                       {selectedPost.status !== "POSTADO" && (
                         <button
                           onClick={() => handleUpdateToPosted(selectedPost.id)}

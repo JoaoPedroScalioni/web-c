@@ -28,11 +28,11 @@ class PostStatus(Enum):
 
     def can_transition_to(self, new_status: "PostStatus") -> bool:
         transitions = {
-            PostStatus.PENDING_UPLOAD: [PostStatus.CRIADO],
-            PostStatus.CRIADO: [PostStatus.AGUARDANDO_APROVACAO],
-            PostStatus.AGUARDANDO_APROVACAO: [PostStatus.APROVADO, PostStatus.REJEITADO],
+            PostStatus.PENDING_UPLOAD: [PostStatus.CRIADO, PostStatus.POSTADO],
+            PostStatus.CRIADO: [PostStatus.AGUARDANDO_APROVACAO, PostStatus.POSTADO],
+            PostStatus.AGUARDANDO_APROVACAO: [PostStatus.APROVADO, PostStatus.REJEITADO, PostStatus.POSTADO],
             PostStatus.APROVADO: [PostStatus.POSTADO],
-            PostStatus.REJEITADO: [PostStatus.AGUARDANDO_APROVACAO],
+            PostStatus.REJEITADO: [PostStatus.AGUARDANDO_APROVACAO, PostStatus.POSTADO],
             PostStatus.POSTADO: [],
         }
         return new_status in transitions.get(self, [])
