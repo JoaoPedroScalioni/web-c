@@ -43,11 +43,12 @@ app = FastAPI(
 )
 
 origins = [origin.strip() for origin in settings.CORS_ORIGINS.split(",")]
+if "https://web-c-kappa.vercel.app" not in origins:
+    origins.append("https://web-c-kappa.vercel.app")
 
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
-    allow_origin_regex=r"https://.*\.vercel\.app",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
