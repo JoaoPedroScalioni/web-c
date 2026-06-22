@@ -25,6 +25,13 @@ os.makedirs("uploads", exist_ok=True)
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logger.info("Elevva B2B API iniciada com sucesso")
+    try:
+        async with AsyncSessionLocal() as session:
+            await session.execute(text("ALTER TYPE poststatus ADD VALUE IF NOT EXISTS 'POSTADO'"))
+            await session.commit()
+            logger.info("Enum poststatus atualizado com POSTADO")
+    except Exception:
+        pass
     yield
     logger.info("Elevva B2B API encerrando recursos")
 
