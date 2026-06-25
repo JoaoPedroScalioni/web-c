@@ -6,6 +6,10 @@ from src.infrastructure.config import settings
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
+# --- APRESENTAÇÃO: Tirar print daqui até a linha 17 ---
+# Explicação: Segurança e Performance. O Bcrypt é intencionalmente lento para evitar ataques de força bruta. 
+# Como o FastAPI é assíncrono, usamos "asyncio.to_thread" para jogar esse cálculo pesado para uma 
+# thread secundária, impedindo que o login de um usuário trave o servidor inteiro para os outros.
 class PasswordHasher:
     @staticmethod
     async def hash(password: str) -> str:

@@ -18,6 +18,9 @@ COPY . .
 # Gera o build de produção (depende do output: 'standalone' no next.config)
 RUN npm run build
 
+# --- APRESENTAÇÃO: Tirar print daqui até a linha 44 ---
+# Explicação: Imagem final enxuta focada em segurança. O Next.js gera um build 'standalone' (linha 41) 
+# que não precisa da pasta node_modules inteira. A linha 29 cria um usuário sem privilégios root para rodar o app, bloqueando ataques graves.
 # Stage 4: Imagem de Produção Final Enxuta
 FROM base AS runner
 WORKDIR /app

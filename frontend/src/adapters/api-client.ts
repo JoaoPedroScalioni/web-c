@@ -23,6 +23,8 @@ export class ApiError extends Error {
  * Base Fetcher para a API do Elevva.
  * Lança um ApiError em caso de falha, para que o TanStack Query possa capturar.
  */
+// Explicação: O "Coração" do consumo da API. Este client intercepta todas as chamadas 
+// para o backend, pega o token JWT armazenado de forma segura no localStorage e injeta no cabeçalho (Bearer token) em tempo real.
 export async function fetchClient<T>(endpoint: string, options?: RequestInit): Promise<T> {
   // Pega o token se estivermos rodando no navegador
   const token = typeof window !== "undefined" ? localStorage.getItem("access_token") : null;
@@ -52,7 +54,7 @@ export async function fetchClient<T>(endpoint: string, options?: RequestInit): P
       if (e instanceof ApiError) throw e;
       // Caso a resposta não seja JSON válido
     }
-    
+
     throw new ApiError(response.status, `Erro na requisição: ${response.statusText}`, errorDetails);
   }
 

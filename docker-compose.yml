@@ -40,6 +40,9 @@ services:
       timeout: 5s
       retries: 5
 
+# --- APRESENTAÇÃO: Tirar print daqui até a linha 64 ---
+# Explicação: Orquestração de Microserviços. A API Python sobe com suas variáveis injetadas
+# e possui a tag 'depends_on' (linha 57), garantindo que ela só ligue se o banco (db) e o storage (minio) estiverem 100% saudáveis.
   api:
     build: . 
     ports:

@@ -1,3 +1,7 @@
+# --- APRESENTAÇÃO: Tirar print daqui até a linha 11 ---
+# Explicação: Blueprint de Deploy (IaC). Em vez de configurar o servidor clicando em painéis,
+# declaramos toda a infraestrutura em código. O Render lê isso, cria o banco de dados (elevva-db)
+# e injeta a "connectionString" de forma segura no backend (linhas 8 a 11) automaticamente.
 services:
   - type: web
     name: elevva-apicerto
@@ -15,13 +19,17 @@ services:
         value: HS256
       - key: ACCESS_TOKEN_EXPIRE_MINUTES
         value: "43200"
-      - key: AWS_ACCESS_KEY_ID
+      - key: STORAGE_BACKEND
+        value: r2
+      - key: R2_ACCOUNT_ID
         sync: false
-      - key: AWS_SECRET_ACCESS_KEY
+      - key: R2_ACCESS_KEY_ID
         sync: false
-      - key: AWS_REGION
-        value: sa-east-1
-      - key: S3_BUCKET_NAME
+      - key: R2_SECRET_ACCESS_KEY
+        sync: false
+      - key: R2_BUCKET_NAME
+        value: elevva-midias
+      - key: R2_PUBLIC_URL
         sync: false
       - key: TIMEZONE
         value: America/Sao_Paulo

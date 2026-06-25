@@ -1,3 +1,6 @@
+# --- APRESENTAÇÃO: Tirar print daqui até a linha 15 ---
+# Explicação: Otimização de container (Multi-stage Build). No Stage 1 compilamos 
+# os pacotes pesados para que o container de produção fique leve e sem lixo de compilação.
 # Stage 1: Builder
 FROM python:3.12-slim AS builder
 

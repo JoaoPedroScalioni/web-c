@@ -80,6 +80,10 @@ jobs:
       - name: Run lint
         run: npm run lint
 
+  # --- APRESENTAÇÃO: Tirar print daqui até a linha 103 ---
+  # Explicação: O estágio final do CI/CD (Continuous Deployment). Após os testes do backend e do frontend passarem (linha 84), 
+  # o GitHub Actions faz login automático no Docker Hub usando chaves secretas (Secrets), 
+  # constrói a imagem final e faz o push para o repositório, deixando a aplicação pronta para produção.
   build-and-push:
     needs: [test-backend, test-frontend]
     runs-on: ubuntu-latest

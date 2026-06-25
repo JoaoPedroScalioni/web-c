@@ -1,5 +1,8 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+# --- APRESENTAÇÃO: Tirar print daqui até a linha 18 ---
+# Explicação: Segurança na inicialização. Em vez de ler as variáveis de ambiente manualmente, 
+# usamos Pydantic Settings para tipar, validar e até definir tolerâncias. Se faltar a URL do banco, o app nem liga, falhando de forma segura (Fail-fast).
 class Settings(BaseSettings):
     """Mapeamento Rigoroso das Variáveis de Ambiente B2B"""
     DATABASE_URL: str

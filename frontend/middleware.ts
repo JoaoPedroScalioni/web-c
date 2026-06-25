@@ -17,6 +17,9 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // --- APRESENTAÇÃO: Tirar print daqui até a linha 32 ---
+  // Explicação: Proteção de rotas em Next.js usando o "Edge Server". 
+  // O middleware roda na camada CDN antes mesmo da página carregar, barrando intrusos verificando a presença de cookies válidos.
   // O middleware do Next.js roda no Edge Server, logo ele só tem acesso aos Cookies, 
   // não ao localStorage do navegador. Validamos a sessão pelos cookies.
   const token = request.cookies.get('access_token')?.value || request.cookies.get('elevva_guest_id')?.value;

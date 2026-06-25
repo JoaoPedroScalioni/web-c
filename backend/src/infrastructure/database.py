@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker 
 from sqlalchemy.orm import DeclarativeBase 
 from src.infrastructure.config import settings
-from src.infrastructure.storage_impl import MinioStorageRepository, LocalStorageRepository
+from src.infrastructure.storage_impl import MinioStorageRepository, LocalStorageRepository, R2StorageRepository
 from functools import lru_cache
 import os
 
@@ -41,6 +41,8 @@ def _get_storage_instance():
     storage_backend = os.getenv("STORAGE_BACKEND", "local").lower()
     if storage_backend == "minio":
         return MinioStorageRepository()
+    if storage_backend == "r2":
+        return R2StorageRepository()
     return LocalStorageRepository()
 
 def get_storage():

@@ -19,26 +19,6 @@ services:
       timeout: 5s
       retries: 5
 
-  minio:
-    image: minio/minio:latest
-    container_name: elevva-minio-prod
-    restart: always
-    env_file:
-      - .env.production
-    environment:
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
-    volumes:
-      - elevva_minio_data_prod:/data
-    command: server /data --console-address ":9001"
-    networks:
-      - elevva-net-prod
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
   api:
     build: 
       context: .
@@ -53,8 +33,6 @@ services:
       - elevva_uploads_prod:/app/uploads
     depends_on:
       db:
-        condition: service_healthy
-      minio:
         condition: service_healthy
     networks:
       - elevva-net-prod
@@ -98,6 +76,4 @@ networks:
 
 volumes:
   elevva_postgres_data_prod:
-    # Volume seguro e isolado do dev
-  elevva_minio_data_prod:
   elevva_uploads_prod:
